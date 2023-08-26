@@ -80,4 +80,16 @@ A list can be circular. Printing circular lists uses "sharp-equal notation"; ~#1
 ~CONSP~ returns T if its input is a cons cell.
 The difference between the two is NIL is a list, but /not/ a cons cell.
 
+*** Escaping values in a list
+
+To escape referencing a variable, use quotes.
+
+#+begin_src lisp :results value
+  (setf a (first '(fully escaped)))
+  (setf b (first (list 'fully 'escaped)))
+  (equal a b)
+#+end_src
+
+#+RESULTS:
+: T
 
