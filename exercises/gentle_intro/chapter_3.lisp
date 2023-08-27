@@ -134,3 +134,70 @@
   (list all 'x is 'y))
 
 (speak 'a 'b)
+
+;;; 3.22 b for each expression, write down what the result will be, or what kind of error it will cause,
+;;; then check by running it
+
+(+ 3 5)
+
+(3 + 5)
+
+(+ 3 (5 6))
+
+(+ 3 (* 5 6))
+
+'(morning noon night)
+
+('morning 'noon 'night)
+
+(list 'morning 'noon 'night)
+
+(car nil)
+
+(+ 3 foo)
+
+(+ 3 'foo)
+
+;;; 3.22 c based on the following call, define myfun
+
+(myfun 'alpha 'beta) ; ((alpha) beta)
+
+;;; 3.22 d write a predicate firstp that returns t if its first argument (a symbol) is equal to the
+;;; first element of its second argument (a list).
+
+(assert (firstp 'foo '(foo bar baz)))
+(assert (not (firstp 'boing '(foo bar baz))))
+
+;;; 3.22 e write a function mid-add1 that adds 1 to the middle element of a three-element list
+
+(assert (equal (mid-add1 '(take 2 cookies)) '(take 3 cookies)))
+
+;;; 3.22 f write a function f-to-c that converts a temperature from fahrenheit to celsius
+;;; the formula is: Celsius temperature = [5 x (Fahrenheit temp - 32)]/9
+
+(assert (= (f-to-c 14) -10))
+(assert (= (f-to-c 32) 0))
+(assert (= (f-to-c 59) 15))
+
+;;; 3.22 g what is wrong with this function? What does (foo 5) do?
+
+(defun foo (x)
+  (+ 1 (zerop x))) 
+
+(foo t)
+
+;;; 3.25 what do the following expressions evaluate to?
+
+(list 'cons t nil)
+
+(eval (list 'cons t nil))
+
+(eval (eval (list 'cons t nil)))
+
+(apply #'cons '(t nil)))
+
+(eval nil)
+
+(list 'eval nil)
+
+(eval (list 'eval nil))

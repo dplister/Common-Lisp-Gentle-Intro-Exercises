@@ -174,3 +174,84 @@
   (list all 'x is 'y)) ; assumes a symbol instead of a parameter, all and is need to be quoted
 
 (speak 'a 'b)
+
+;;; 3.22 b for each expression, write down what the result will be, or what kind of error it will cause,
+;;; then check by running it
+
+(+ 3 5) ; 8
+
+(3 + 5) ; attempt to run 3 as a function
+
+(+ 3 (5 6)) ; attempt to run 5 as a function
+
+(+ 3 (* 5 6)) ; 33
+
+'(morning noon night) ; (morning noon night)
+
+('morning 'noon 'night) ; missing list call - morning treated as function
+
+(list 'morning 'noon 'night) ; (morning noon night)
+
+(car nil) ; nil
+
+(+ 3 foo) ; foo not a number, treated as variable
+
+(+ 3 'foo) ; foo not a number, treated as symbol
+
+;;; 3.22 c based on the following call, define myfun
+
+(myfun 'alpha 'beta) ; ((alpha) beta)
+
+(defun myfun (a b)
+  (list (list a) b))
+
+;;; 3.22 d write a predicate firstp that returns t if its first argument (a symbol) is equal to the
+;;; first element of its second argument (a list).
+
+(defun firstp (v ls)
+  (equal v (car ls)))
+
+(assert (firstp 'foo '(foo bar baz)))
+(assert (not (firstp 'boing '(foo bar baz))))
+
+;;; 3.22 e write a function mid-add1 that adds 1 to the middle element of a three-element list
+
+(defun mid-add1 (ls)
+  (list (first ls)
+	(+ (second ls) 1)
+	(third ls)))
+
+(assert (equal (mid-add1 '(take 2 cookies)) '(take 3 cookies)))
+
+;;; 3.22 f write a function f-to-c that converts a temperature from fahrenheit to celsius
+;;; the formula is: Celsius temperature = [5 x (Fahrenheit temp - 32)]/9
+
+(defun f-to-c (fahrenheit)
+  (/ (* 5 (- fahrenheit 32)) 9))
+
+(assert (= (f-to-c 14) -10))
+(assert (= (f-to-c 32) 0))
+(assert (= (f-to-c 59) 15))
+
+;;; 3.22 g what is wrong with this function? What does (foo 5) do?
+
+(defun foo (x)
+  (+ 1 (zerop x))) 
+
+(foo t) ; attempts to add a number to a predicate (t / nil) response
+
+;;; 3.25 what do the following expressions evaluate to?
+
+(list 'cons t nil) ; (cons t nil)
+
+(eval (list 'cons t nil)) ; (t)
+
+(eval (eval (list 'cons t nil))) ; error; attempting to eval (t)
+
+(apply #'cons '(t nil))) ; (t)
+
+(eval nil) ; nil
+
+(list 'eval nil) ; (eval nil)
+
+(eval (list 'eval nil)) ; nil

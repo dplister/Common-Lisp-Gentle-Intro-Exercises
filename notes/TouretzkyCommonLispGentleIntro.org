@@ -93,3 +93,29 @@ To escape referencing a variable, use quotes.
 #+RESULTS:
 : T
 
+*** Internal structure of symbols
+
+Symbols are actually composite objects that contain pointers that point to an internal representation, i.e. the symbol's name.
+
+For symbols such as ~CONS~ and ~+~, they are used to name built-in lisp functions.
+The symbol ~CONS~ has a pointer in its name cell pointing to "CONS", and a pointer in its function cell pointing to the compiled code object that performs the cons operation.
+
+#+begin_src lisp :results value
+  (list
+    (symbol-name 'equal)
+    (symbol-function 'equal))
+#+end_src
+
+#+RESULTS:
+: ("EQUAL" #<FUNCTION EQUAL>)
+
+*** Quoting functions
+
+The first argument of ~apply~ is a function, escaping function calls is achieved via ~#'~
+
+#+begin_src lisp :results value
+  (apply #'+ '(2 3))
+#+end_src
+
+#+RESULTS:
+: 5
