@@ -119,3 +119,32 @@ The first argument of ~apply~ is a function, escaping function calls is achieved
 
 #+RESULTS:
 : 5
+
+** Chapter 4 - Conditionals
+
+~if~ has three parts: test, true-part, false-part.
+If true, returns value of true-part.
+If false, returns value of false-part.
+
+#+begin_src lisp :results value
+  (defun symbol-test (x)
+    (if (symbolp x) (list 'yes x 'is 'a 'symbol)
+	(list 'no x 'is 'not 'a 'symbol)))
+  (list
+    (symbol-test 'rutabaga)
+    (symbol-test 12345))
+#+end_src
+
+#+RESULTS:
+| YES | RUTABAGA | IS | A   | SYMBOL |        |
+| NO  |    12345 | IS | NOT | A      | SYMBOL |
+
+If the false-part is missed, ~if~ will return ~nil~ on false.
+
+#+begin_src lisp :results value
+  (if nil 'happy)
+#+end_src
+
+#+RESULTS:
+: NIL
+
