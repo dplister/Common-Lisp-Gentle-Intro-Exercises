@@ -122,6 +122,8 @@ The first argument of ~apply~ is a function, escaping function calls is achieved
 
 ** Chapter 4 - Conditionals
 
+*** if
+
 ~if~ has three parts: test, true-part, false-part.
 If true, returns value of true-part.
 If false, returns value of false-part.
@@ -147,4 +149,21 @@ If the false-part is missed, ~if~ will return ~nil~ on false.
 
 #+RESULTS:
 : NIL
+
+*** cond
+
+Goes through clauses sequentially until clause test is true.
+If no clause test evaluates to true, ~cond~ returns nil.
+t can be used as an else for the ~cond~.
+
+#+begin_src lisp :results value
+  (defun compare (x y)
+    (cond ((equal x y) 'numbers-are-the-same)
+	  ((< x y) 'first-is-smaller)
+	  ((> x y) 'first-is-bigger)))
+
+  (assert (equal (compare 3 5) 'first-is-smaller))
+  (assert (equal (compare 7 2) 'first-is-bigger))
+  (assert (equal (compare 4 4) 'numbers-are-the-same))
+#+end_src
 
