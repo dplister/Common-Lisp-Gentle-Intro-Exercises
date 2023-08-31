@@ -167,3 +167,26 @@ t can be used as an else for the ~cond~.
   (assert (equal (compare 4 4) 'numbers-are-the-same))
 #+end_src
 
+*** and / or macros
+
+~and~ evalute the clauses one at a time.
+- if a clause returns nil, stop and return nil.
+- if all clauses yield non-nil results, return the value of the last clause.
+
+#+begin_src lisp :results value
+  (and 1 2 3)
+#+end_src
+
+#+RESULTS:
+: 3
+
+~or~ evaluate the clauses one at a time.
+- if a clause returns a value other than nil, stop and return value.
+- if a clause returns nil, continue to evaluate the next, if none are left, return nil.
+
+#+begin_src lisp :results value
+  (or nil 'value)
+#+end_src
+
+#+RESULTS:
+: VALUE

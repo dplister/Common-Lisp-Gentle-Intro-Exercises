@@ -138,3 +138,76 @@
 (assert (equal (howcompute 3 4 7) 'sum-of))
 (assert (equal (howcompute 3 4 12) 'product-of))
 (assert (equal (howcompute 3 4 99) 'beats-me))
+
+;;; 4.14 what results do the following expressions produce?
+
+(and 'fee 'fie' 'foe) ; foe
+
+(or 'fee 'fie 'foe) ; fee
+
+(or nil 'foe nil) ; foe
+
+(and 'fee 'fie nil) ; nil
+
+(and (equal 'abc 'abc) 'yes) ; yes
+
+(or (equal 'abc 'abc) 'yes) ; t
+
+;;; 4.15 write a predicate called geq that returns t if its first input is greater than or equal to its second input
+
+(defun geq (x y)
+  (>= x y))
+
+(assert (not (geq 1 2)))
+(assert (geq 1 1))
+(assert (geq 2 1))
+
+;;; 4.16 write a function that:
+;;; - squares a number if it is odd and positive
+;;; - doubles a number if it is odd and negative
+;;; - otherwise, divides the number by 2
+
+(defun squadiv (x)
+  (cond
+    ((and (oddp x) (> x 0)) (* x x))
+    ((and (oddp x) (< x 0)) (* x 2))
+    (t (/ x 2))))
+
+(assert (= (squadiv 3) 9))
+(assert (= (squadiv -3) -6))
+(assert (= (squadiv 0) 0))
+(assert (= (squadiv 4) 2))
+
+;;; 4.17 write a predicate that returns t if
+;;; - first input is boy/girl and second input is child
+;;; - first input is man/woman and second input is adult
+
+(defun ident (gen age)
+  (or (and (or (equal gen 'boy)
+	       (equal gen 'girl))
+	   (equal age 'child))
+      (and (or (equal gen 'man)
+	       (equal gen 'woman))
+	   (equal age 'adult))))
+
+(assert (ident 'man 'adult))
+(assert (ident 'boy 'child))
+(assert (ident 'woman 'adult))
+(assert (ident 'girl 'child))
+(assert (not (ident 'man 'child)))
+(assert (not (ident 'girl 'adult)))
+  
+;;; 4.18 write a referee for rock-scissors paper, takes two player inputs and returns the
+;;; result of the play
+
+(defun rsp (p1 p2)
+  (cond
+    ((equal p1 p2) 'tie)
+    ((and (equal p1 'rock) (equal p2 'scissors)) 'first-wins)
+    ((and (equal p1 'scissors) (equal p2 'paper)) 'first-wins)
+    ((and (equal p1 'paper) (equal p2 'rock)) 'first-wins)
+    (t 'second-wins)))
+
+(assert (equal (rsp 'rock 'scissors) 'first-wins))
+(assert (equal (rsp 'rock 'paper) 'second-wins))
+(assert (equal (rsp 'scissors 'scissors) 'tie))

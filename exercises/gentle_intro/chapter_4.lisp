@@ -88,3 +88,51 @@
 (assert (equal (howcompute 3 4 7) 'sum-of))
 (assert (equal (howcompute 3 4 12) 'product-of))
 (assert (equal (howcompute 3 4 99) 'beats-me))
+
+;;; 4.14 what results do the following expressions produce?
+
+(and 'fee 'fie' 'foe)
+
+(or 'fee 'fie 'foe)
+
+(or nil 'foe nil)
+
+(and 'fee 'fie nil)
+
+(and (equal 'abc 'abc) 'yes)
+
+(or (equal 'abc 'abc) 'yes)
+
+;;; 4.15 write a predicate called geq that returns t if its first input is greater than or equal to its second input
+
+(assert (not (geq 1 2)))
+(assert (geq 1 1))
+(assert (geq 2 1))
+
+;;; 4.16 write a function that:
+;;; - squares a number if it is odd and positive
+;;; - doubles a number if it is odd and negative
+;;; - otherwise, divides the number by 2
+
+(assert (= (squadiv 3) 9))
+(assert (= (squadiv -3) -6))
+(assert (= (squadiv 0) 0))
+(assert (= (squadiv 4) 2))
+
+;;; 4.17 write a predicate that returns t if
+;;; - first input is boy/girl and second input is child
+;;; - first input is man/woman and second input is adult
+
+(assert (ident 'man 'adult))
+(assert (ident 'boy 'child))
+(assert (ident 'woman 'adult))
+(assert (ident 'girl 'child))
+(assert (not (ident 'man 'child)))
+(assert (not (ident 'girl 'adult)))
+  
+;;; 4.18 write a referee for rock-scissors paper, takes two player inputs and returns the
+;;; result of the play
+
+(assert (equal (rsp 'rock 'scissors) 'first-wins))
+(assert (equal (rsp 'rock 'paper) 'second-wins))
+(assert (equal (rsp 'scissors 'scissors) 'tie))
