@@ -190,3 +190,9 @@ t can be used as an else for the ~cond~.
 
 #+RESULTS:
 : VALUE
+
+*** step
+
+~Step~ is built into lisps, for implementation specific commands, use "?".
+
+~(step (if (oddp 5) 'yes 'no))~

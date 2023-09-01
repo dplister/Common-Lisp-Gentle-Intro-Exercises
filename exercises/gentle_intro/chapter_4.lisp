@@ -136,3 +136,81 @@
 (assert (equal (rsp 'rock 'scissors) 'first-wins))
 (assert (equal (rsp 'rock 'paper) 'second-wins))
 (assert (equal (rsp 'scissors 'scissors) 'tie))
+
+;;; 4.19 show how to write the expression (AND x y z w) using cond instead of and
+;;; then show how to write it using nested ifs
+
+(assert (= (and-cond 1 2 3 4) 4))
+(assert (not (and-cond 1 2 nil 4)))
+
+(assert (= (and-if 1 2 3 4) 4))
+(assert (not (and-if 1 2 nil 4)))
+
+;;; 4.20 write a version of the compare function using if instead of cond
+;;; - also write a version using and and or
+
+(defun example-compare (x y)
+  (cond ((equal x y) 'numbers-are-the-same)
+	((< x y) 'first-is-smaller)
+	((> x y) 'first-is-bigger)))
+
+(assert (equal (compare-if 1 1) 'numbers-are-the-same))
+(assert (equal (compare-if 1 2) 'first-is-smaller))
+(assert (equal (compare-if 2 1) 'first-is-bigger))
+
+(assert (equal (compare-and-or 1 1) 'numbers-are-the-same))
+(assert (equal (compare-and-or 1 2) 'first-is-smaller))
+(assert (equal (compare-and-or 2 1) 'first-is-bigger))
+
+;;; 4.21 write version of the gtest function using if and cond
+
+(defun example-gtest (x y)
+  (or (> x y)
+      (zerop x)
+      (zerop y)))
+
+(assert (gtest-if 2 1))
+(assert (gtest-if 0 1))
+(assert (gtest-if -1 0))
+(assert (not (gtest-if 1 2)))
+
+(assert (gtest-cond 2 1))
+(assert (gtest-cond 0 1))
+(assert (gtest-cond -1 0))
+(assert (not (gtest-cond 1 2)))
+
+;;; 4.22 use cond to write a predicate boilingp that takes two inputs, temp and scale
+;;; and returns t if the temperature is above the boiling point of water on the specified scale
+;;; write versions using if and and/or instead of cond
+
+(defun boilingp (temp scale)
+  (cond
+    ((equal scale 'fahrenheit) (>= temp 212))
+    ((equal scale 'celsius) (>= temp 100))))
+
+; min boiling points
+(assert (boilingp 212 'fahrenheit))
+(assert (boilingp 100 'celsius))
+
+(assert (not (boilingp 1 'fahrenheit)))
+(assert (not (boilingp 1 'celsius)))
+(assert (boilingp 300 'fahrenheit))
+(assert (boilingp 200 'celsius))
+
+; min boiling points
+(assert (boilingp-if 212 'fahrenheit))
+(assert (boilingp-if 100 'celsius))
+
+(assert (not (boilingp-if 1 'fahrenheit)))
+(assert (not (boilingp-if 1 'celsius)))
+(assert (boilingp-if 300 'fahrenheit))
+(assert (boilingp-if 200 'celsius))
+
+; min boiling points
+(assert (boilingp-and-or 212 'fahrenheit))
+(assert (boilingp-and-or 100 'celsius))
+
+(assert (not (boilingp-and-or 1 'fahrenheit)))
+(assert (not (boilingp-and-or 1 'celsius)))
+(assert (boilingp-and-or 300 'fahrenheit))
+(assert (boilingp-and-or 200 'celsius))
