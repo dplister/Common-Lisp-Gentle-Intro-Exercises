@@ -191,8 +191,63 @@ t can be used as an else for the ~cond~.
 #+RESULTS:
 : VALUE
 
+*** evaluation of conditionals
+
+The macros and / or don't evaluate their arguments unless they reach that input as part of their evaluation.
+For example ~(or (oddp 3) (oddp 'asdf))~ won't error as ~(oddp 3)~ will evaluate to true.
+
+If we were to create function ~(defun foo (a b) (and a b))~, and called via ~foo~ with the same parameters as above, it would error as the parameters would be evaluated when passed into the ~foo~ function.
+
 *** step
 
 ~Step~ is built into lisps, for implementation specific commands, use "?".
 
 ~(step (if (oddp 5) 'yes 'no))~
+
+** Chapter 5
+
+Define a variable with ~defvar~.
+
+#+begin_src lisp :results value
+  (defvar trowels '(gardening pointing fishing)) ; value is optional
+  (setf trowels (cons 'something trowels))
+#+end_src
+
+#+RESULTS:
+| SOMETHING | GARDENING | POINTING | FISHING |
+
+~setf~ used mostly for global variables; good practice to avoid changing value of local vars.
+
+~let~ allows you to define scoped variables within the braces.
+
+#+begin_src lisp :results value
+  (defun switch-values (ls)
+    (let ((head (first ls))
+	  (last (third ls)))
+      (list last head)))
+
+  (switch-values '(mac and max))
+#+end_src
+
+#+RESULTS:
+| MAX | MAC |
+
+~let*~ creates local variables in sequence; a subsequent variable can depend on the result of an earlier one.
+
+** Advanced: Symbols
+
+Internally a symbol is composed of five components.
+
+- Name
+- Function cell
+- Value cell
+
+If global variable TOTAL has the value 12, internal structure would appear as:
+| Name  | "TOTAL" |
+| Value |      12 |
+
+If global variable FISH has the value TROUT, the structure would appear as:
+| Name  | "FISH"             |
+| Value | <Pointer to TROUT> |
+
+| Name | "TROUT" |
