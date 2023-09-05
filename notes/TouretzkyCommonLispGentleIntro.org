@@ -25,6 +25,7 @@ Functions suffixed with 'P' returning T or NIL that evaluate a predicate. i.e. ~
 - Last cons cell points to NIL.
 - An empty list is represented by NIL.
   - NIL is still a valid input to ~LENGTH~ because NIL is also a list.
+- Lists are one-way chains of pointers. 
 
 *** List operations
 
@@ -233,6 +234,31 @@ Define a variable with ~defvar~.
 | MAX | MAC |
 
 ~let*~ creates local variables in sequence; a subsequent variable can depend on the result of an earlier one.
+
+** Chapter 5
+
+~append~ copies its first input and for the cdr of the last cell, attaches the second input.
+
+#+begin_src lisp :results value
+  (defvar a '(1 2 3))
+  (defvar b '(4 5 6))
+  (defvar c (append a b))
+  (setf (car (cdr a)) 12) ; notice the result for c does not contain this
+  (setf (car (cdr b)) 10)
+  c
+#+end_src
+
+#+RESULTS:
+| 1 | 2 | 3 | 4 | 10 | 6 |
+
+~member~ checks whether an item is a member of a list.
+If member is found, returns sublist beginning with that item, else nil.
+
+~intersection~ returns the list of items existing in both sets.
+
+~union~ returns the set of items that appear in either list, if appears in both, only included once.
+
+~set-difference~ returns the set of items from the first input that were not in the second input.
 
 ** Advanced: Symbols
 
