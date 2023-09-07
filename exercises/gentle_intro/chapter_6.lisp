@@ -193,3 +193,15 @@
 	       '(2 common features)))
 (assert (equal (compare '(small red metal cube -vs- red plastic small cube))
 	       '(3 common features))) ; 6.26 e
+
+;;; 6.35 the nerd has five states: sleeping, eating, waiting-for-a-computer, programming, debugging. Behaviour is cyclic.
+
+;;; 6.35 a write a data structure that contains the five states above, each representing the connection between a state and its successor. Store in nerd-states.
+
+(defvar nerd-states
+  '((sleeping . eating)
+    (eating . waiting-for-a-computer)
+    (waiting-for-a-computer . programming)
+    (programming . debugging)
+    (debugging . sleeping)))
+
