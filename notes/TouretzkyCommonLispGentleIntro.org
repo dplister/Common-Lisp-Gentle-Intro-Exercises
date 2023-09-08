@@ -260,6 +260,36 @@ If member is found, returns sublist beginning with that item, else nil.
 
 ~set-difference~ returns the set of items from the first input that were not in the second input.
 
+** Chapter 6
+
+Association lists (tables) are lists of lists.
+
+~assoc~ wwill search the car of each element.
+
+#+begin_src lisp :results value
+  (setf words
+    '((one un)
+      (two deux)
+      (three trois)))
+  (assoc 'three words)
+#+end_src
+
+#+RESULTS:
+| THREE | TROIS |
+
+~rassoc~ will search the cdr of each element. This requires the table to contain dotted pairs.
+
+#+begin_src lisp :results value
+  (setf words
+    '((one . un)
+      (two . deux)
+      (three . trois)))
+  (rassoc 'deux words)
+#+end_src
+
+#+RESULTS:
+: (TWO . DEUX)
+
 ** Advanced: Symbols
 
 Internally a symbol is composed of five components.

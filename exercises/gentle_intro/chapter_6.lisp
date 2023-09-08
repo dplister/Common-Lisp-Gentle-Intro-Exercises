@@ -1,3 +1,5 @@
+(load "common.lisp")
+
 ;;; 6.1 why does the following equal nil?
 
 (nth 4 '(A B C)) 
@@ -193,3 +195,64 @@
 	       '(2 common features)))
 (assert (equal (compare '(small red metal cube -vs- red plastic small cube))
 	       '(3 common features))) ; 6.26 e
+
+;;; 6.28 based on the following list, what do the expressions evalute to?
+
+(defvar produce
+  '((apple . fruit)
+    (celery . veggie)
+    (banana . fruit)
+    (lettuce . veggie)))
+
+(assoc 'banana produce) ; finds banana . fruit
+(rassoc 'fruit produce) ; finds apple . fruit (first matching element)
+(assoc 'lettuce produce) ; finds lettuce . veggie
+(rassoc 'veggie produce) ; finds celery . veggie
+
+;;; 6.30 make a table called books of five books and their authors, the first entry might be (war-and-peace leo-tolstoy)
+
+(defvar books
+  '((war-and-peace leo-tolstoy)
+    (complete-works plato)
+    (computer-organisation-and-design patterson-hennessey)
+    (on-sparta plutarch)
+    (letters seneca)))
+
+;;; 6.31 write the function who-wrote that takes the name of a book as input and returns the book's author
+
+(defun who-wrote (name)
+  (second (assoc name books)))
+
+(assert (equal (who-wrote 'letters) 'seneca))
+(assert (equal (who-wrote 'on-sparta) 'plutarch))
+
+;;; 6.32 suppose we do (setf books (reverse books)) which reverse the order in which the five books appear in the table. What will the who-wrote function do now?
+
+;; nothing different, not order dependent.
+(setf books (reverse books))
+(assert (equal (who-wrote 'letters) 'seneca))
+
+;;; 6.33 suppose we wanted a what-wrote function that took an author's name as input and return the title of one of his or her books, could we create such a function using assoc and the current table? If not, how would the table have to be different?
+
+;;; we could rewrite using dotted pairs, or use a map that flips the order around.
+
+;;; 6.34 here is a table of states and some of their cities, stored in the global variable atlas
+
+(defvar atlas
+  '((pennsylvania pittsburgh)
+    (new-jersey newark)
+    (pennsylvania johnstown)
+    (ohio columbus)
+    (new-jersey princeton)
+    (new-jersey trenton)))
+	       
+;; suppose we wanted to find all the cities a given state contains. Redesign this list so that assoc can be used.
+
+(defvar revised-atlas
+  '((pennsylvania (pittsburgh johnstown))
+    (ohio (columbus))
+    (new-jersey (newark princeton trenton))))
+
+(assert (same-elements (cadr (assoc 'pennsylvania revised-atlas)) '(pittsburgh johnstown)))
+(assert (same-elements (cadr (assoc 'new-jersey revised-atlas)) '(newark princeton trenton)))
+(assert (same-elements (cadr (assoc 'ohio revised-atlas)) '(columbus)))
