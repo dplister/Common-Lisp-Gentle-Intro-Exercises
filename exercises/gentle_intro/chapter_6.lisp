@@ -256,3 +256,15 @@
 (assert (same-elements (cadr (assoc 'pennsylvania revised-atlas)) '(pittsburgh johnstown)))
 (assert (same-elements (cadr (assoc 'new-jersey revised-atlas)) '(newark princeton trenton)))
 (assert (same-elements (cadr (assoc 'ohio revised-atlas)) '(columbus)))
+
+;;; 6.35 the nerd has five states: sleeping, eating, waiting-for-a-computer, programming, debugging. Behaviour is cyclic.
+
+;;; 6.35 a write a data structure that contains the five states above, each representing the connection between a state and its successor. Store in nerd-states.
+
+(defvar nerd-states
+  '((sleeping . eating)
+    (eating . waiting-for-a-computer)
+    (waiting-for-a-computer . programming)
+    (programming . debugging)
+    (debugging . sleeping)))
+
