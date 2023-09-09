@@ -204,10 +204,10 @@
     (banana . fruit)
     (lettuce . veggie)))
 
-(assoc 'banana produce) ; finds banana . fruit
-(rassoc 'fruit produce) ; finds apple . fruit (first matching element)
-(assoc 'lettuce produce) ; finds lettuce . veggie
-(rassoc 'veggie produce) ; finds celery . veggie
+(assoc 'banana produce) 
+(rassoc 'fruit produce) 
+(assoc 'lettuce produce) 
+(rassoc 'veggie produce) 
 
 ;;; 6.30 make a table called books of five books and their authors, the first entry might be (war-and-peace leo-tolstoy)
 
@@ -220,9 +220,6 @@
 
 ;;; 6.31 write the function who-wrote that takes the name of a book as input and returns the book's author
 
-(defun who-wrote (name)
-  (second (assoc name books)))
-
 (assert (equal (who-wrote 'letters) 'seneca))
 (assert (equal (who-wrote 'on-sparta) 'plutarch))
 
@@ -233,8 +230,6 @@
 (assert (equal (who-wrote 'letters) 'seneca))
 
 ;;; 6.33 suppose we wanted a what-wrote function that took an author's name as input and return the title of one of his or her books, could we create such a function using assoc and the current table? If not, how would the table have to be different?
-
-;;; we could rewrite using dotted pairs, or use a map that flips the order around.
 
 ;;; 6.34 here is a table of states and some of their cities, stored in the global variable atlas
 
@@ -248,11 +243,6 @@
 	       
 ;; suppose we wanted to find all the cities a given state contains. Redesign this list so that assoc can be used.
 
-(defvar revised-atlas
-  '((pennsylvania (pittsburgh johnstown))
-    (ohio (columbus))
-    (new-jersey (newark princeton trenton))))
-
 (assert (same-elements (cadr (assoc 'pennsylvania revised-atlas)) '(pittsburgh johnstown)))
 (assert (same-elements (cadr (assoc 'new-jersey revised-atlas)) '(newark princeton trenton)))
 (assert (same-elements (cadr (assoc 'ohio revised-atlas)) '(columbus)))
@@ -261,10 +251,131 @@
 
 ;;; 6.35 a write a data structure that contains the five states above, each representing the connection between a state and its successor. Store in nerd-states.
 
-(defvar nerd-states
-  '((sleeping . eating)
-    (eating . waiting-for-a-computer)
-    (waiting-for-a-computer . programming)
-    (programming . debugging)
-    (debugging . sleeping)))
+;;; 6.35 b write a function nerdus that takes the name of a state as input and uses the above data structure to determine the next state the creature will be in.
 
+(assert (equal (nerdus 'sleeping) 'eating))
+(assert (equal (nerdus 'debugging) 'sleeping))
+
+;;; 6.35 c what is the result of
+(nerdus 'playing-guitar) 
+
+;;; 6.35 d when nerdus ingests too many stimulants, it stops sleeping. After finishing debugging, it immediately goes on to state 'eating. Write a function sleepless-nerd that works just like nerdus except it never sleeps, it should use nerd-states.
+
+(assert (equal (sleepless-nerd 'debugging) 'eating))
+(assert (equal (sleepless-nerd 'waiting-for-a-computer) 'programming))
+
+;;; 6.35 e nerd can jump two states when on stimulants, write a function that exhibits this pathology, it should use nerd-states
+
+(assert (equal (nerd-on-caffeine 'sleeping) 'waiting-for-a-computer))
+(assert (equal (nerd-on-caffeine 'waiting-for-a-computer) 'debugging))
+
+;;; 6.35 f if a nerd on caffeine is currently programming, how many states will it have to go through before it is debugging?
+
+;;; 6.36 write a function that swaps the first and last elements of any list
+
+(assert (equal (swap-first-last '()) '()))
+(assert (equal (swap-first-last '(you cant buy love)) '(love cant buy you)))
+
+;;; 6.37 rotate-left and rotate-right are functions that rotate elements of a list.
+
+(assert (equal (rotate-left '(A B C D E)) '(B C D E A)))
+(assert (equal (rotate-right '(A B C D E)) '(E A B C D)))
+
+;;; 6.41 map of room
+
+(defvar rooms
+  '((living-room
+     (north front-stairs)
+     (south dining-room)
+     (east kitchen))
+    (upstairs-bedroom
+     (west library)
+     (south front-stairs))
+    (dining-room
+     (north living-room)
+     (east pantry)
+     (west downstairs-bedroom))
+    (kitchen
+     (west living-room)
+     (south pantry))
+    (pantry
+     (north kitchen)
+     (west dining-room))
+    (downstairs-bedroom
+     (north back-stairs)
+     (east dining-room))
+    (back-stairs
+     (south downstairs-bedroom)
+     (north library))
+    (front-stairs
+     (north upstairs-bedroom)
+     (south living-room))
+    (library
+     (east upstairs-bedroom)
+     (south back-stairs))))
+
+;;; 6.41 a write a function choices that takes the name of a room and returns permissable directions
+
+(assert (equal (choices 'pantry) '((north kitchen) (west dining-room))))
+
+;;; 6.41 b write a function look that takes two inputs, a direction and a room, and tells where robbie would end up if he moved in that direction from the room.
+
+(assert (equal (look 'north 'pantry) 'kitchen))
+(assert (equal (look 'south 'pantry) nil))
+
+;;; 6.41 c a global variable loc will hold robbie's location. Write an expression that sets Robbie's location.
+
+(defvar *loc*)
+
+(progn
+  (set-robbie-location 'kitchen)
+  (assert (equal *loc* 'kitchen)))
+
+;;; 6.41 d write a function how-many-choices that counts the amount of exits available from the current location
+;;; your function should refer to the global variable loc to find robbie's current location
+
+(progn
+  (set-robbie-location 'pantry)
+  (assert (= (how-many-choices) 2)))
+
+;;; 6.41 e write a predicate upstairsp that returns t if its input is an upstairs location (library / upstairs-bedroom)
+;;; write a predicate onstairsp that returns t if input is either front-stairs or back-stairs
+
+(assert (upstairsp 'library))
+(assert (upstairsp 'upstairs-bedroom))
+(assert (not (upstairsp 'front-stairs)))
+
+(assert (onstairsp 'front-stairs))
+(assert (onstairsp 'back-stairs))
+(assert (not (onstairsp 'library)))
+
+;;; 6.41 f where's robbie? Write a function called where that tells where robbie is.
+
+(progn
+  (set-robbie-location 'library)
+  (assert (equal (where) '(robbie is upstairs in the library))))
+(progn
+  (set-robbie-location 'kitchen)
+  (assert (equal (where) '(robbie is downstairs in the kitchen))))
+(progn
+  (set-robbie-location 'front-stairs)
+  (assert (equal (where) '(robbie is on the front-stairs))))
+
+;;; 6.41 g write move that takes direction as input, and moves robbie in that direction.
+
+(progn
+  (set-robbie-location 'pantry)
+  (assert (equal (move 'south) '(ouch! robbie hit a wall))))
+(progn
+  (set-robbie-location 'pantry)
+  (assert (equal (move 'north) '(robbie is downstairs in the kitchen))))
+
+;;; 6.41 h starting from the pantry, take robbie to the library via the back stairs.
+;;; Then take him to the kitchen, but do not lead him through the downstairs bedroom on the way
+
+(progn
+  (set-robbie-location 'pantry)
+  (moves '(west west north north)))
+(progn
+  (set-robbie-location 'library)
+  (moves '(east south south east south)))
