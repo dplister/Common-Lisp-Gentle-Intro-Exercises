@@ -260,6 +260,16 @@ If member is found, returns sublist beginning with that item, else nil.
 
 ~set-difference~ returns the set of items from the first input that were not in the second input.
 
+*** Equality
+
+Comparing lists via ~equal~ will compare lists element by element.
+ 
+| ~eq~     | fastest equality, compares addresses. Compares symbols quickly and to determine if two cons cells are the same object. |
+| ~eql~    | (default) will operate like ~eq~ except numbers (of the same type) are compared by value.                              |
+| ~equal~  | compares lists element by element, otherwise works identical to ~eql~.                                                 |
+| ~equalp~ | more liberal than ~equal~, ignores case in strings.                                                                    |
+| ~=~      | most efficient for comparing numbers (even of different types).                                                        |
+
 ** Chapter 6
 
 Association lists (tables) are lists of lists.
@@ -290,7 +300,50 @@ Association lists (tables) are lists of lists.
 #+RESULTS:
 : (TWO . DEUX)
 
+*** Tree Manipulation
+
+~subst~ substitutes one item for another everywhere it appears in a list (including at different levels).
+
+#+begin_src lisp :results value
+  (subst 'the 'a
+    '((a hatter) (a hare) (a dormouse)))
+#+end_src
+
+#+RESULTS:
+| THE | HATTER   |
+| THE | HARE     |
+| THE | DORMOUSE |
+
+~sublis~ operates similarly, but a list of subs can be provided via dotted pairs.
+
+#+begin_src lisp :results value
+  (defvar dotted-words
+    '((one . un)
+      (two . deux)
+      (three . trois)))
+  (sublis dotted-words
+    '(three one two))
+#+end_src
+
+#+RESULTS:
+| TROIS | UN | DEUX |
+
+*** Efficiency of list operations
+
+Comparing the two functions below
+
+~(defun add-to-end-1 (x y) (append x (list y)))~ assuming list length n, it will create a total of n+1 new cons cells.
+~append~ will copy the list x and attach it to the new ~(list y)~.
+
+~(defun add-to-end-2 (x y) (reverse (cons y (reverse x))))~ creates a new list of reversed x (of length n), attaches y to the list (+ 1), then reverses the result, creating a new list of n+1 new cons cells.
+
+The first function is clearly more efficient.
+
 ** Advanced: Symbols
+
+- There can only be one symbol in the computer's memory with a given name.
+- Every object in memory has a numbered location (address).
+- Since a symbol exists in only one place in memory, symbols have unique addresses.
 
 Internally a symbol is composed of five components.
 

@@ -319,9 +319,9 @@
     (ohio (columbus))
     (new-jersey (newark princeton trenton))))
 
-(assert (same-elements (cadr (assoc 'pennsylvania revised-atlas)) '(pittsburgh johnstown)))
-(assert (same-elements (cadr (assoc 'new-jersey revised-atlas)) '(newark princeton trenton)))
-(assert (same-elements (cadr (assoc 'ohio revised-atlas)) '(columbus)))
+(assert (equal (cadr (assoc 'pennsylvania revised-atlas)) '(pittsburgh johnstown)))
+(assert (equal (cadr (assoc 'new-jersey revised-atlas)) '(newark princeton trenton)))
+(assert (equal (cadr (assoc 'ohio revised-atlas)) '(columbus)))
 
 ;;; 6.35 the nerd has five states: sleeping, eating, waiting-for-a-computer, programming, debugging. Behaviour is cyclic.
 

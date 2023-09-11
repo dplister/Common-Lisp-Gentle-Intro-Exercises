@@ -1,5 +1,3 @@
-(load "common.lisp")
-
 ;;; 6.1 why does the following equal nil?
 
 (nth 4 '(A B C)) 
@@ -243,9 +241,9 @@
 	       
 ;; suppose we wanted to find all the cities a given state contains. Redesign this list so that assoc can be used.
 
-(assert (same-elements (cadr (assoc 'pennsylvania revised-atlas)) '(pittsburgh johnstown)))
-(assert (same-elements (cadr (assoc 'new-jersey revised-atlas)) '(newark princeton trenton)))
-(assert (same-elements (cadr (assoc 'ohio revised-atlas)) '(columbus)))
+(assert (equal (cadr (assoc 'pennsylvania revised-atlas)) '(pittsburgh johnstown)))
+(assert (equal (cadr (assoc 'new-jersey revised-atlas)) '(newark princeton trenton)))
+(assert (equal (cadr (assoc 'ohio revised-atlas)) '(columbus)))
 
 ;;; 6.35 the nerd has five states: sleeping, eating, waiting-for-a-computer, programming, debugging. Behaviour is cyclic.
 
@@ -379,3 +377,10 @@
 (progn
   (set-robbie-location 'library)
   (moves '(east south south east south)))
+
+;;; 6.42 write a function called royal-we that changes every occurrence of the symbol I in a list to the symbol WE.
+
+(defun royal-we (sentence)
+  (subst 'we 'i sentence))
+
+(assert (equal (royal-we '(if I learn lisp i will be pleased)) '(if we learn lisp we will be pleased)))
