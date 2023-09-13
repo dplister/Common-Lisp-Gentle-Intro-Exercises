@@ -356,6 +356,45 @@ For example ~member~ takes an optional argument ~:test~ that specifies how eleme
 |   5 | DIAMONDS |
 | ACE | SPADES   |
 
+** Chapter 7
+
+- Applicative programming is based on the idea that functions are data; one should be able to pass functions as inputs to other functions, and also return functions as values.
+- *Applicative operators* are functions that take another function as input and apply it to the elements of a list.
+
+~funcall~ calls a function on some inputs.
+#+begin_src lisp :results value
+  (funcall #'cons 'a 'b)
+#+end_src
+
+#+RESULTS:
+: (A . B)
+
+~mapcar~ takes a function as input and applies it to each element in a list.
+
+#+begin_src lisp :results value
+  (defun square (x) (* x x))
+  (mapcar #'square '(1 2 3 4 5))
+#+end_src
+
+#+RESULTS:
+| 1 | 4 | 9 | 16 | 25 |
+
+*** Lambda expressions
+
+- Lambda is not a macro or special function that has to be evaluated, it is a marker that says "this list represents a function".
+- Object you get back from a ~#'(lambda ...)~ expression can be referred to as *lexical closure*.
+- A lambda expression can reference local variables inside lambda /and/ in the function containing the lambda expression.
+
+#+begin_src lisp :results value
+  (mapcar #'(lambda (x) (list 'hi 'there x))
+	   '(joe fred wanda))
+#+end_src
+
+#+RESULTS:
+| HI | THERE | JOE   |
+| HI | THERE | FRED  |
+| HI | THERE | WANDA |
+
 ** Advanced: Symbols
 
 - There can only be one symbol in the computer's memory with a given name.
