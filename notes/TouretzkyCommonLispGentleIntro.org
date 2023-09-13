@@ -339,6 +339,23 @@ Comparing the two functions below
 
 The first function is clearly more efficient.
 
+*** Keyword arguments
+
+- Used for optional arguments.
+- Always preceded by a colon.
+- Symbol ~count~ and keyword symbol ~:count~ are not the same, they are different objects and not ~eq~ to each other.
+
+For example ~member~ takes an optional argument ~:test~ that specifies how elements should be compared.
+
+#+begin_src lisp :results value
+  (defvar cards '((3 clubs) (5 diamonds) (ace spades)))
+  (member '(5 diamonds) cards :test #'equal)
+#+end_src
+
+#+RESULTS:
+|   5 | DIAMONDS |
+| ACE | SPADES   |
+
 ** Advanced: Symbols
 
 - There can only be one symbol in the computer's memory with a given name.
