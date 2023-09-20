@@ -418,6 +418,13 @@ To call a lexical closure, use ~funcall~ or ~apply~.
 #+RESULTS:
 : 120
 
+** Chapter 8: Recursion
+
+Three rules of recursion
+1) Know when to stop
+2) Decide how to take one step
+3) Break the journey down into that step plus a smaller journey
+
 ** Advanced: Symbols
 
 - There can only be one symbol in the computer's memory with a given name.
