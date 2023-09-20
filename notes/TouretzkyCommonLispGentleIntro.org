@@ -395,6 +395,29 @@ For example ~member~ takes an optional argument ~:test~ that specifies how eleme
 | HI | THERE | FRED  |
 | HI | THERE | WANDA |
 
+*** Quotes
+
+- ~'~ is shorthand for the ~quote~ special function.
+- ~#'~ is shorthand for the ~function~ special function.
+
+#+begin_src lisp :results value
+  (reduce (function +) (quote (1 2 3)))
+#+end_src
+
+#+RESULTS:
+: 6
+
+If argument to ~function~ is a lambda expression, the result is usually a lexical closure.
+To call a lexical closure, use ~funcall~ or ~apply~.
+
+#+begin_src lisp :results value
+  (setf g #'(lambda (x) (* x 10)))
+  (funcall g 12) ; calling (g 12) would error as g is not the name of a function
+#+end_src
+
+#+RESULTS:
+: 120
+
 ** Advanced: Symbols
 
 - There can only be one symbol in the computer's memory with a given name.
@@ -416,3 +439,21 @@ If global variable FISH has the value TROUT, the structure would appear as:
 | Value | <Pointer to TROUT> |
 
 | Name | "TROUT" |
+
+
+** Advanced: Using Trace
+
+- ~trace~ allows you to watch particular functions when they are called.
+- ~untrace~ turns off the tracing
+- the above two can be mixed; i.e. in the below scenario you could ~untrace~ average once you have confirmed it works fine, and half would still trace.
+
+#+begin_src lisp :results value
+  (defun half (n) (* n 0.5))
+  (defun average (x y) (+ (half x) (half y)))
+  (trace half average)
+  ; can now call the below and see trace information
+  (average 3 7)
+#+end_src
+
+#+RESULTS:
+: 5.0
