@@ -425,6 +425,14 @@ Three rules of recursion
 2) Decide how to take one step
 3) Break the journey down into that step plus a smaller journey
 
+*** Recursive Data Structures
+
+An /S-expression/ is either an atom, or a cons cell whose CAR and CDR parts are S-expressions.
+A tree is either a single terminal node, or a nonterminal node whose branches are trees.
+
+/Terminal nodes/ are the bottom nodes as they have no branches descending from them.
+/Nonterminal Nodes/ are the rest of the nodes as they have branches.
+
 ** Advanced: Symbols
 
 - There can only be one symbol in the computer's memory with a given name.
