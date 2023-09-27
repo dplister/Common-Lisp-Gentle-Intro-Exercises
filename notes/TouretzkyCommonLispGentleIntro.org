@@ -425,6 +425,22 @@ Three rules of recursion
 2) Decide how to take one step
 3) Break the journey down into that step plus a smaller journey
 
+~labels~ can be used as an alternative to one function calling another when they are tightly coupled.
+
+#+begin_src lisp :results value
+  (defun count-up (n)
+    (labels ((count-up-recursively (cnt)
+      (if (> cnt n) nil
+	  (cons cnt
+		(count-up-recursively (+ cnt 1))))))
+    (count-up-recursively 1)))
+
+  (count-up 5)
+#+end_src
+
+#+RESULTS:
+| 1 | 2 | 3 | 4 | 5 |
+
 *** Recursive Data Structures
 
 An /S-expression/ is either an atom, or a cons cell whose CAR and CDR parts are S-expressions.
@@ -432,6 +448,73 @@ A tree is either a single terminal node, or a nonterminal node whose branches ar
 
 /Terminal nodes/ are the bottom nodes as they have no branches descending from them.
 /Nonterminal Nodes/ are the rest of the nodes as they have branches.
+
+** Chapter 9: IO
+
+~format~ returns nil, but as a side effect it prints to screen or writes to a file.
+- First argument is ~t~ if we want to print to screen.
+- Second argument is format control string.
+  - Special formatting directives begin with ~~~
+  - Considered good practice to prefix control string with ~~&~
+
+| Symbol | Description                                  |
+|--------+----------------------------------------------|
+| ~%     | New line                                     |
+| ~&     | New line if not already at new line          |
+| ~S     | S-expression                                 |
+| ~A     | Print object without using escape characters |
+
+*** Reading files ***
+
+The below demonstrates how to persist data in a way that common lisp can directly read it back in as S-expressions.
+
+~with-open-file~ provides a means to read data
+
+#+begin_src
+  "Test Data"
+  ((45 redwood) (12 oak) (43 maple))
+  100
+#+end_src
+
+#+begin_src lisp :results output
+  (defun get-tree-data ()
+    (with-open-file (stream "./test_data.dat")
+      (let* ((tree-loc (read stream))
+	      (tree-table (read stream))
+	      (num-trees (read stream)))
+	(format t "~&There are ~S trees on ~S."
+		num-trees tree-loc)
+	(format t "~&They are: ~S" tree-table))))
+
+  (get-tree-data)
+#+end_src
+
+#+RESULTS:
+: There are 110 trees on "The West Ridge".
+: They are: ((45 REDWOOD) (22 OAK) (43 MAPLE))
+
+*** Writing files ***
+
+~with-open-file~ provides a means to write data
+
+#+begin_src lisp :results value
+  (defun save-tree-data (tree-loc tree-table num-trees)
+    (with-open-file (stream "./test_data.dat"
+		       :direction :output :if-exists :overwrite)
+      (format stream "~S~%" tree-loc)
+      (format stream "~S~%" tree-table)
+      (format stream "~S~%" num-trees)))
+
+  (save-tree-data
+    "The West Ridge"
+    '((45 redwood) (22 oak) (43 maple))
+    110)
+#+end_src
+
+#+RESULTS:
+: NIL
+
+This can be tested with the code in the read files section.
 
 ** Advanced: Symbols
 
