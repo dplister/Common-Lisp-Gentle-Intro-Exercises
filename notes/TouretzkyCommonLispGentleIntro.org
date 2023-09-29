@@ -462,6 +462,7 @@ A tree is either a single terminal node, or a nonterminal node whose branches ar
 | ~%     | New line                                     |
 | ~&     | New line if not already at new line          |
 | ~S     | S-expression                                 |
+| ~10S   | As above but with a width of 10              |
 | ~A     | Print object without using escape characters |
 
 *** Reading files ***
@@ -492,6 +493,9 @@ The below demonstrates how to persist data in a way that common lisp can directl
 #+RESULTS:
 : There are 110 trees on "The West Ridge".
 : They are: ((45 REDWOOD) (22 OAK) (43 MAPLE))
+
+A solution to reading a file with a non-predetermined length is to have an EOF indicator.
+Potentially an empty single cons cell could be used, but another option is ~(list '$eof$)~.
 
 *** Writing files ***
 
@@ -555,3 +559,8 @@ If global variable FISH has the value TROUT, the structure would appear as:
 
 #+RESULTS:
 : 5.0
+
+** Advanced: Dribble
+
+Using the ~dribble~ function with a filename will start recording a session in your repl.
+Calling ~dribble~ again will complete the recording.
