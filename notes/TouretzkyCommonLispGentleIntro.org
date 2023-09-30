@@ -520,6 +520,36 @@ Potentially an empty single cons cell could be used, but another option is ~(lis
 
 This can be tested with the code in the read files section.
 
+** Chapter 10: Assignment **
+
+A convention in common lisp is that global variables should begin and end with an ~*asterisk*~
+
+~incf~ and ~decf~ are macros that can increment/decrement a variable.
+
+~push~ and ~pop~ are macros that push an item onto the start of the list, or remove it.
+- they are missing the ~f~ suffix as they were invented before ~setf~
+  - ~setf~ stands for "set field"
+
+Considered inelegant to change the value of a local variable (just bind a new local with let).
+Binding sequentially with let* eliminates assignments (assignment-free).
+
+One exception is to bind lets to nil, and then use setf:
+#+begin_src lisp :results value
+  (defun get-name()
+    (let ((last-name nil)
+	  (first-name nil))
+      (format t "~&Last name? ")
+      (setf last-name (read))
+      (format t "~&First name? ")
+      (setf first-name (read))
+      (list first-name last-name)))
+  (get-name)
+#+end_src
+
+~when~ and ~unless~ will return the last expression in the body if their test evaluates true/false respectively.
+
+Neat trick: remember that many functions take more than two args, i.e. ~(<= 1 n 9)~ as between range.
+
 ** Advanced: Symbols
 
 - There can only be one symbol in the computer's memory with a given name.
@@ -559,6 +589,45 @@ If global variable FISH has the value TROUT, the structure would appear as:
 
 #+RESULTS:
 : 5.0
+
+** Advanced: Break and Error
+
+*** Break - Breakpoints
+
+We can put a break point in with an associated formatted message via ~break~.
+
+#+begin_src lisp :results value
+  (defun analyze-profit (price commission-rate)
+    (let* ((commission (* price commission-rate))
+	   (result
+	     (cond ((> commission 100) 'rich)
+		   ((< commission 100) 'poor))))
+      (break "Value of RESULT is ~S" result)
+      (format t "~&I predict you will be: ~S" result)
+      result))
+  (analyze-profit 2000 0.05)
+  ; try price, commission-rate, commission variables to inspect and work out problem
+#+end_src
+
+- To inspect the local variables, move the cursor to the top frame (0), and press enter.
+- Pressing 'e' will allow you to evaluate variables as well.
+  - Some may be missing due to optimization (in the above case, ~commission~).
+  - ~declaim~ at the start of the file, or ~(declare (optimize (debug 3)))~ at the top of ~analyze-profit~ will make ~commission~ available.
+  - See [[https://stackoverflow.com/questions/67861723/why-slimes-debugger-is-not-evaluating-this-specific-expression-in-the-selected][Stackoverflow of exercise]]
+  - For further information on debugging, see [[https://lisp-journey.gitlab.io/blog/debugging-in-common-lisp/][Debugging common lisp]]
+- ~break~ allows you to continue after inspecting.
+
+*** Error: stop with error message
+
+- Useful for sanity checks.
+- Error never returns: you can never continue from an error.
+
+#+begin_src lisp :results value
+  (defun average (x y)
+    (unless (and (numberp x) (numberp y))
+      (error "Arguments must be numbers: ~S, ~S" x y))
+    (/ (+ x y) 2.0))
+#+end_src
 
 ** Advanced: Dribble
 
