@@ -7,6 +7,10 @@
   (setf *total-glasses* (+ *total-glasses* n))
   (format t "~&Total glasses sold: ~S" *total-glasses*))
 
+(defun sell (n)
+  (incf *total-glasses* n)
+  (format t "~&Total glasses sold: ~S" *total-glasses*))
+
 (progn
   (setf *total-glasses* 0)
   (sell 5)
@@ -26,6 +30,17 @@
 	 (push person *friends*)
 	 'pleased-to-meet-you)))
 
+(defun meet (person)
+  (cond ((equal person (first (first *friends*)))
+	 (incf (second (assoc person *friends*)))
+	 'we-just-met)
+	((assoc person *friends*)
+	 (incf (second (assoc person *friends*)))
+	 'we-know-each-other)
+	(t
+	 (push (list person 0) *friends*)
+	 'pleased-to-meet-you)))
+
 (progn
   (setf *friends* nil)
   (meet 'fred)
@@ -39,6 +54,13 @@
 
 ;;; 10.4 write a function forget that removes a person from the *friends* list
 ;;; if the person wasn't on the list, the function should complain
+
+(defun forget (person)
+  (if (assoc person *friends*)
+      (setf *friends*
+	    (remove-if (lambda (p) (equal (first p) person))
+		       *friends*))
+      (format t "~%No person found for ~A" person)))
 
 (progn
   (setf *friends* nil)
@@ -59,6 +81,13 @@
   (list 'average avg 'is pct 'percent 'of 'max y))
 
 (assert (equal (ugly 20 2) '(average 11.0 is 55.0 percent of max 20)))
+
+(defun not-ugly (x y)
+  (let* ((nx (max x y))
+	 (ny (min x y))
+	 (avg (/ (+ ny nx) 2.0))
+	 (pct (* 100 (/ avg nx))))
+  (list 'average avg 'is pct 'percent 'of 'max nx)))
 
 (assert (equal (not-ugly 20 2) '(average 11.0 is 55.0 percent of max 20)))
 
@@ -201,9 +230,27 @@
 ;;; 10.8 a set *corners* to the four corner positions
 ;; set *sides* to hold four side squares
 
+(defvar *corners* '(1 3 7 9))
+(defvar *sides* '(2 4 6 8))
+
 ;;; 10.8 b write a function block-squeeze-paly that checks the diagonals for an O-X-O pattern and defens by suggesting
 ;;; a side square as the best move. Should return nil if there is no squeeze play in progress.
 ;;; should return a list containing a move number and a string explaining the strategy behind the move
+
+(defvar *diagonals* (subseq *triplets* 6))
+
+(defun block-squeeze-play (board)
+  (when (squeeze-p board)
+    (let ((pos (find-empty-position board *sides*)))
+      (when pos
+	(list pos "squeeze play")))))
+
+(defun squeeze-p (board)
+  "identifies if a squeeze play is occurring"
+  (find-if #'(lambda (trip)
+	       (and (equal (sum-triplet board trip) 12) ; X O X
+		    (equal (nth 5 board) 10)))
+	   *diagonals*))
 
 (setf squeeze-board '(board 1 0 0 0 10 0 0 0 1))
 (setf not-squeeze-board '(board 10 0 0 0 1 0 0 0 1))
@@ -215,6 +262,19 @@
 ;;; 10.8 c write a function block-two-on-one that checks the diagonals for O-O-X or X-O-O pattern and defends by suggesting a corner as the best move
 ;; should return nil if there is no squeeze play in progress. Should return a list containing a move number and a string explaining strategy.
 
+(defun block-two-on-one (board)
+  (when (two-on-one-p board)
+    (let ((pos (find-empty-position board *corners*)))
+      (when pos
+	(list pos "two on one")))))
+
+(defun two-on-one-p (board)
+  "identifies if a two-on-one play is occurring"
+  (find-if #'(lambda (trip)
+	       (and (equal (sum-triplet board trip) 12) ; O-O-X
+		    (equal (nth 5 board) 1)))
+	   *diagonals*))
+
 (setf two-one-board '(board 1 0 0 0 1 0 0 0 10))
 (setf not-two-one-board '(board 1 0 0 1 0 0 0 0 10))
 (assert (two-on-one-p two-one-board))
@@ -224,12 +284,28 @@
 
 ;;; 10.8 d modify the choose-best-move function so that it tries these two defensive strategies before choosing a move at random
 
+(defun choose-best-move (board)
+  (or (make-three-in-a-row board)
+      (block-opponent-win board)
+      (block-two-on-one board)
+      (block-squeeze-play board)
+      (diagonal-attack board)
+      (random-move-strategy board)))
+
 (assert (equal (choose-best-move squeeze-board) (list 2 "squeeze play")))
 (assert (equal (choose-best-move two-one-board) (list 3 "two on one")))
 
 ;;; 10.8 e if the computer goes first, then after the opponent's first move there may be an opportunity for the computer to set up a squeeze play or two-on-one situation to trap the opponent
 ;;; write functions to check the diagonals and suggest an appropriate attack if the opporunity exists
 ;;; modify choose-best-move to include these offensive strategies
+
+(defun diagonal-attack (board)
+  "determines if the current diagonal could have an attack pattern applied"
+  (let ((pos (find-if #'(lambda (trip)
+			  (equal (sum-triplet board trip) 11)) ; an X and an O
+	     *diagonals*)))
+    (when pos
+      (list (find-empty-position board pos) "diagonal attack"))))
 
 (defvar possible-squeeze '(board 1 0 0 0 10 0 0 0 0))
 (defvar possible-two-on-one '(board 1 0 0 0 0 0 0 0 10))
@@ -241,6 +317,12 @@
 
 ;;; 10.9 write a destructive function chop that shortens any non-nil list to a list of one element
 
+(defun chop (ls)
+  (cond
+    ((null ls) ls)
+    (t (setf (cdr ls) nil)
+       ls)))
+
 (let ((a '(1 2 3)))
   (chop a)
   (assert (equal a (list 1))))
@@ -250,10 +332,12 @@
 
 ;;; 10.10 write a function ntack that destructively tacks a symbol onto a list
 
+(defun ntack (ls item)
+  (nconc ls (list item)))
+
 (let ((a '(1 2 3)))
   (ntack a 4)
   (assert (equal a (list 1 2 3 4))))
 (let ((a '(fee fie foe)))
   (ntack a 'fum)
   (assert (equal a (list 'fee 'fie 'foe 'fum))))
-

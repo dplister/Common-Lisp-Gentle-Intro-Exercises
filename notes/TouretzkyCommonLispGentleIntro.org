@@ -550,6 +550,59 @@ One exception is to bind lets to nil, and then use setf:
 
 Neat trick: remember that many functions take more than two args, i.e. ~(<= 1 n 9)~ as between range.
 
+*** List Surgery
+
+We can manipulate pointers of cons cells directly to avoid building new lists.
+
+#+begin_src lisp :results output
+  (defun snip (x)
+    (setf (cdr x) (cdr (cdr x))))
+
+  (setf a '(no down payment))
+  (setf b (cdr a))
+
+  (snip a)
+  
+  (format t "~&a: ~A" a) ; (no payment)
+
+  (format t "~&b: ~A" b) ; (down payment)
+#+end_src
+
+#+RESULTS:
+: a: (NO PAYMENT)
+: b: (DOWN PAYMENT)
+
+*** Destructive Operations on Lists
+
+- By convention, most destructive functions begin with "N"
+- ~nconc~ sets the last cons cell of its first list input to point to the start of the second list input
+  It is important to note that if the first list is nil, it won't work - need to pair with ~setf~
+  #+begin_src lisp :results output
+    (setf x nil)
+    (setf y '(no luck today))
+    (nconc x y)
+    (format t "~&x: ~A" x)
+    (setf x (nconc x y))
+    (format t "~&set x: ~A" x)
+  #+end_src
+  #+RESULTS:
+  : x: NIL
+  : set x: (NO LUCK TODAY)
+  - Can take multiple parameters, destructively concatenating them all together.
+
+- ~nsubst~ destructively modifies a list by changing the pointers in the cars of some cells
+  #+begin_src lisp :results output
+    (setf tree '(i say (e i (e i) o)))
+    (nsubst 'a 'e tree)
+    (format t "~&~A" tree)
+    (nsubst 'cheery '(a i) tree :test #'equal)
+    (format t "~&~A" tree)
+  #+end_src
+
+  #+RESULTS:
+  : (I SAY (A I (A I) O))
+  : (I SAY (A I CHEERY O))
+
 ** Advanced: Symbols
 
 - There can only be one symbol in the computer's memory with a given name.
