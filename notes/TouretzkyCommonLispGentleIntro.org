@@ -603,6 +603,37 @@ We can manipulate pointers of cons cells directly to avoid building new lists.
   : (I SAY (A I (A I) O))
   : (I SAY (A I CHEERY O))
 
+** Chapter 11 Iteration and Block Structure
+
+~dotimes~ evaluates the forms in its body /n/ times, while stepping an index variable from 0 to /n/-1
+~dolist~ steps a variable through the set of items in a list
+Both functions take an optional parameter that returns a value once the function has completed.
+~return~ inside either of these functions will early return.
+
+#+begin_src lisp :results output
+  (dotimes (i 2)
+    (format t "i is ~S   " i))
+  (format t "~%")
+  (format t "return value: ~S"
+    (dolist (x '(1 2) 3)
+      (format t "x is ~S   " x)))
+  (format t "~%")
+  (format t "first even: ~S"
+    (dolist (i '(1 2 3))
+      (when (evenp i)
+	(return i))))
+  (format t "~%")
+  (format t "all even? ~S"
+    (dolist (i '(2 4 6) t)
+      (if (oddp i) (return nil))))
+#+end_src
+
+#+RESULTS:
+: i is 0   i is 1   
+: x is 1   x is 2   return value: 3
+: first even: 2
+: All even? T
+
 ** Advanced: Symbols
 
 - There can only be one symbol in the computer's memory with a given name.
