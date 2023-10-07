@@ -172,3 +172,71 @@
 
 (ffo-with-do '(2 4 6 7 8))
 (ffo-with-do '(2 4 6 7)) ; last isn't processed because (first z) is using the previous iteration's value
+
+;; 11.22 exercises assume the use of iterative solutions
+
+;;; 11.22 a write a function complement-base that takes a base as input and returns the complementary base
+
+(defvar bases
+  '((A . T)
+    (T . A)
+    (G . C)
+    (C . G)))
+
+(defun complement-base (b)
+  (cdr (assoc b bases)))
+
+(assert (equal (complement-base 'A) 'T))
+(assert (equal (complement-base 'T) 'A))
+
+;;; 11.22 b write a function complement-strand that returns the complementary strand of dna
+
+(defun complement-strand (ls)
+  (do ((b ls (cdr b))
+       (result nil (cons (complement-base (first b)) result)))
+      ((null b) (reverse result))))
+
+(assert (equal (complement-strand '(A G G T)) '(T C C A)))
+
+;;; 11.22 c write a function make-double that takes a single strand as input and returns the double strand version
+
+(defun make-double (ls)
+  (do ((b ls (cdr b))
+       (result '() (cons (list (first b) (complement-base (first b))) result)))
+      ((null b) (reverse result))))
+
+(assert (equal (make-double '(G G A C T)) '((G C) (G C) (A T) (C G) (T A))))
+
+;;; 11.22 d write count-bases which counts the bases in a double or single strand
+
+(defun flatten (ls)
+  "flattens list one level"
+  (flatten-1 ls))
+
+(defun flatten-1 (ls &optional (acc '()))
+  (cond
+    ((null ls) (reverse acc))
+    ((listp (first ls))
+     (flatten-1 (rest ls)
+		(append (first ls) acc)))
+    (t
+     (flatten-1 (rest ls)
+		(cons (first ls) acc)))))
+
+(assert (equal (flatten '((A) (B) C)) '(A B C)))
+
+(defun count-bases (ls)
+  (let ((fs (flatten ls)))
+    (do ((el fs (cdr el))
+	 (res '()))
+	((null el) res)
+      (if (null (assoc (first el) res))
+	  (push (list (first el) 1) res)
+	  (incf (second (assoc (first el) res)))))))
+    
+(assert (equal (count-bases '(A)) '((A 1))))
+(assert (equal (count-bases '(A A)) '((A 2))))
+(assert (equal (count-bases '((G C) (A T) (T A) (T A) (C G)))
+	       '((A 3) (T 3) (G 2) (C 2))))
+(assert (equal (count-bases '(A G T A C T C T))
+	       '((C 2) (T 3) (G 1) (A 2))))
