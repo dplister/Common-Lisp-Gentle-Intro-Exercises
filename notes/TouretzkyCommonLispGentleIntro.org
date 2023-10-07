@@ -634,6 +634,74 @@ Both functions take an optional parameter that returns a value once the function
 : first even: 2
 : All even? T
 
+Repetitive calls in recursion can build up a result, iterative programs can build up results via repetitive assignment.
+
+#+begin_src lisp :results value
+  (defun it-intersection (x y)
+    (let ((result-set nil))
+      (dolist (element x result-set)
+	(when (member element y)
+	  (push element result-set)))))
+  (it-intersection '(f a c e) '(c l o v e))
+#+end_src
+
+#+RESULTS:
+| E | C |
+
+*** DO Macro
+
+- Can
+  - bind any numbers of variables like ~let~
+  - step any number of index variables
+  - specify test for exit, along with termination actions
+
+#+begin_src lisp :results output
+  (defun launch (n)
+    (do ((cnt n (- cnt 1)))
+	((zerop cnt) (format t "Blast off!"))
+      (format t "~S..." cnt)))
+  (launch 10)
+#+end_src
+
+#+RESULTS:
+: 10...9...8...7...6...5...4...3...2...1...Blast off!
+
+One of the advantages of ~do~ is that all assignments can be implicit as compared to using ~push~ or ~setf~ in the body.
+
+*** Implicit Blocks
+
+The body of a ~do~ (and others) is a block.
+Bodies of looping forms like ~dotimes~, ~dolist~, ~do~, ~do*~ contain blocks implicitly named nil; ~return x~ is actually ~return-from nil x~.
+If we wanted to return from a function, instead of just exiting a ~do~ block, we can use ~return-from~.
+
+#+begin_src lisp :results value
+  (defun find-first-odd (x)
+    (dolist (element x)
+      (when (oddp element)
+	(return-from find-first-odd element))) ; the name of the function
+    'none)
+  (find-first-odd '(2 4 6 7 8))
+#+end_src
+
+#+RESULTS:
+: 7
+
+This early-return is also usable in other contexts, for example within a ~mapcar~.
+
+#+begin_src lisp :results value
+  (defun square-list (x)
+    (mapcar
+      #'(lambda (e)
+	(if (numberp e)
+	  (* e e)
+	  (return-from square-list 'nope)))
+    x))
+  (square-list '(1 2 three 4))
+#+end_src
+
+#+RESULTS:
+: NOPE
+
 ** Advanced: Symbols
 
 - There can only be one symbol in the computer's memory with a given name.
