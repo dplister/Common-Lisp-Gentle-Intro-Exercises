@@ -702,6 +702,59 @@ This early-return is also usable in other contexts, for example within a ~mapcar
 #+RESULTS:
 : NOPE
 
+*** Lambda-list Keywords
+
+~&optional~ is a /lambda-list keyword/ that defines an optional argument
+- ~(defun foo (x &optional y)~ has an optional argument y that defaults to ~nil~
+- ~(defun foo (x &optional (y 1))~ has an optional argument y that defaults to 1
+
+~&rest~ is a /lambda-list keyword/ that binds all remaining arguments to a list
+#+begin_src lisp :results value
+  (defun average (&rest args)
+    (/ (reduce #'+ args)
+       (length args)
+       1.0))
+  (average 1 2 3 4 5) 
+#+end_src
+
+#+RESULTS:
+: 3.0
+
+~&key~ is a /lambda-list keyword/ that are similar to optional arguments except the name can be supplied by the caller
+#+begin_src lisp :results value
+  (defun make-sundae (name &key
+    (ice-cream 'vanilla)
+    (syrup 'hot-fudge)
+    nuts
+    cherries
+    whipped-cream)
+    (list 'sundae
+      (list 'for name)
+      (list ice-cream 'with syrup 'syrup)
+      (list 'toppings '=
+	(remove nil
+	  (list (and nuts 'nuts)
+		(and cherries 'cherries)
+		(and whipped-cream 'whipped-cream))))))
+  (make-sundae 'cindy :syrup 'strawberry :nuts t :cherries t)
+#+end_src
+
+#+RESULTS:
+| SUNDAE | (FOR CINDY) | (VANILLA WITH STRAWBERRY SYRUP) | (TOPPINGS = (NUTS CHERRIES)) |
+
+~&aux~ is a /lambda-list keyword/ that allows the defining of variables within the parameter list
+
+#+begin_src lisp :results value
+  (defun average (&rest args
+		  &aux (len (length args)))
+    (/ (reduce #'+ args) len 1.0))
+
+  (average 1 2 3 4 5)
+#+end_src
+
+#+RESULTS:
+: 3.0
+
 ** Advanced: Symbols
 
 - There can only be one symbol in the computer's memory with a given name.
