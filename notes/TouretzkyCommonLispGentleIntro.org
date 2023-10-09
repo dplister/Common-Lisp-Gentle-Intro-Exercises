@@ -755,6 +755,36 @@ This early-return is also usable in other contexts, for example within a ~mapcar
 #+RESULTS:
 : 3.0
 
+** Chapter 12: Structures and Types
+
+~defstruct~ macro defines new structures and specifies the names and default values of their components.
+
+#+begin_src lisp :results output
+  (defstruct starship
+    (name nil)
+    (speed 0)
+    (condition 'green)
+    (shields 'down))
+  (format t "~S" (describe (make-starship)))
+#+end_src
+
+#+RESULTS:
+: #S(STARSHIP :NAME NIL :SPEED 0 :CONDITION GREEN :SHIELDS DOWN)
+:   [structure-object]
+: 
+: Slots with :INSTANCE allocation:
+:   NAME                           = NIL
+:   SPEED                          = 0
+:   CONDITION                      = GREEN
+:   SHIELDS                        = DOWN
+: NIL
+
+- Set structure values via keyword arguments; ~(make-starship :name "Reliant" :shields 'damaged)~.
+- Check if an object is of specific structure type by ~(starship-p s1)~.
+  - Integrated with type system; can use ~(typep s1 'starship)~.
+- Accessor functions for fields; ~(starship-speed s1)~.
+  - Are place descriptions; can use ~setf~
+
 ** Advanced: Symbols
 
 - There can only be one symbol in the computer's memory with a given name.
