@@ -785,6 +785,52 @@ This early-return is also usable in other contexts, for example within a ~mapcar
 - Accessor functions for fields; ~(starship-speed s1)~.
   - Are place descriptions; can use ~setf~
 
+*** Printing Structures
+
+- Convention is begin with ~#<~ and end with ~>~; ~#<STARSHIP Enterprise>~
+
+#+begin_src lisp :results output
+  (defun print-starship (x stream depth) ; depth not included
+    (format stream "#<STARSHIP ~A>" (starship-name x)))
+
+  (defstruct (starship
+    (:print-function print-starship))
+    (name nil)
+    (captain nil))
+
+  (defvar s1 (make-starship :name "Name" :captain "Captain"))
+  (print-starship s1 t 0)
+  (format t "~&~S" s1)
+#+end_src
+
+#+RESULTS:
+: #<STARSHIP Captain>
+: #<STARSHIP Captain>
+
+*** Structure Inheritance
+
+Using ~:include~ within a ~defstruct~ will allow structures to inherit from others.
+
+#+begin_src lisp :results output
+    (defstruct ship
+      (name nil)
+      (captain nil))
+    (defstruct (starship (:include ship))
+      (weapons nil))
+    (defstruct (supply-ship (:include ship))
+      (cargo nil))
+    (let ((s (make-supply-ship :captain "Harry Mudd")))
+      (format t "~&Ship ~A is a ship: ~S, starship: ~S, supply-ship: ~S~&Name of captain: ~S ~S"
+	s (ship-p s) (starship-p s) (supply-ship-p s)
+        (ship-captain s) (supply-ship-captain s)))
+#+end_src
+
+#+RESULTS:
+: Ship #S(SUPPLY-SHIP :NAME NIL :CAPTAIN Harry Mudd :CARGO NIL) is a ship: T, starship: NIL, supply-ship: T
+: Name of captain: "Harry Mudd" "Harry Mudd"
+
+In the above example ~(ship-p 
+
 ** Advanced: Symbols
 
 - There can only be one symbol in the computer's memory with a given name.

@@ -1,10 +1,29 @@
 ;;; 12.4 a write a defstruct for a structure called node, with four components
 ;;; name, question, yes-case, no-case
 
+(defstruct node
+  (name "")
+  (question "")
+  (yes-case nil)
+  (no-case nil))
+
 ;;; 12.4 b define a global variable *node-list* that wil hold all the nodes
 ;;; write a function init that initialises the network by setting *node-list* to nil
 
+(defvar *node-list* nil)
+
+(defun init ()
+  (setf *node-list* nil))
+
 ;;; 12.4 c write add-node it should return the name of the node it added
+
+(defun add-node (name question yes-case no-case)
+  (let ((n (make-node :name name
+		      :question question
+		      :yes-case yes-case
+		      :no-case no-case)))
+    (push n *node-list*)
+    n))
 
 (progn
   (init)
@@ -23,6 +42,9 @@
 		    (list exp)))))
 
 ;;; 12.4 d write find-node which takes a node name as input and returns the node if its appears in *node-list*
+
+(defun find-node (n)
+  (first (member n *node-list* :key #'node-name :test #'equal)))
 
 (progn
   (setf *node-list* (list (make-node :name "Test 1")
@@ -63,12 +85,52 @@
 ;;; if no node, print message not defined yet and return nil
 ;;; else ask the question associated with node, and return the yes or no action depending on user response
 
+(defun process-node (name &aux (n (find-node name)))
+  (cond
+    ((null n)
+     (format t "~&~A not defined yet" name))
+    ((y-or-n-p (node-question n))
+     (node-yes-case n))
+    (t
+     (node-no-case n))))
+
 ;;; 12.4 f write the function run, it maintains a local var current-node, whose initial-value is start
 ;;; it loops, calling process-node and storing the value back until string (print it) or nil is returned
 
+(defun run ()
+  (do
+   ((current-node (process-node 'start)
+		  (process-node current-node)))
+   ((or (null current-node)
+	(stringp current-node))
+    (when (stringp current-node)
+      (format t "~&~A" current-node)))))
+
 ;;; 12.4 g write an interactive function to add a new node
 
+(defun valid-input (request validp)
+  (format t "~&~A" request)
+  (let ((input (read)))
+    (if (funcall validp input) input
+	(valid-input request validp))))
+
+(defun user-new-node ()
+  (add-node
+   (valid-input "Node name?" #'symbolp)
+   (valid-input "Node question?" #'stringp)
+   (valid-input "Yes-case?" #'symbolp)
+   (valid-input "No-case?" #'symbolp)))
+
 ;;; 12.4 h write nodes that conform to description in book
+
+(add-node 'engine-will-run-briefly
+	  "Does engine stall when cold but not when warm?"
+	  'cold-idle
+	  nil)
+(add-node 'cold-idle
+	  "Is the cold idle speed at least 700 rpm?"
+	  nil
+	  "Adjust the idle speed")
 
 ;;; 12.5 create a defstruct for captain with fields name, age, ship
 ;;; make the enterprise point to your new captain through its captain component.
@@ -85,6 +147,16 @@
   (shields 'down)
   (condition 'green)
   (speed 0))
+
+(defun print-captain (x stream depth)
+  (format stream "#<CAPTAIN \"~A\">"
+	  (captain-name x)))
+
+(defstruct (captain
+	    (:print-function print-captain))
+  (name nil)
+  (age nil)
+  (ship nil))
 
 (progn
   (let* ((cap
