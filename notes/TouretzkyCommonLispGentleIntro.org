@@ -829,7 +829,39 @@ Using ~:include~ within a ~defstruct~ will allow structures to inherit from othe
 : Ship #S(SUPPLY-SHIP :NAME NIL :CAPTAIN Harry Mudd :CARGO NIL) is a ship: T, starship: NIL, supply-ship: T
 : Name of captain: "Harry Mudd" "Harry Mudd"
 
-In the above example ~(ship-p 
+** Chapter 13 Arrays, Hash Tables, Property Lists
+
+A /vector/ is a contiguous block of storage (not cons cells).
+- Contain a header that stores length information and amount of dimensions.
+- Fast access to any element.
+- In most implementations, uses half the memory of a list.
+- Compared to lists:
+  - vectors do not grow element-by-element easily.
+  - don't share structure like lists can.
+- ~length~, ~reverse~, ~find-if~ work on /sequences/, and can be used on vectors.
+
+#+begin_src lisp :results output
+  (setf my-vec '#(tuning violin 440 a))
+  (format t "~S" my-vec)
+  (setf (aref my-vec 2) 441)
+  (format t "~&~S" my-vec)
+#+end_src
+
+#+RESULTS:
+: #(TUNING VIOLIN 440 A)
+: #(TUNING VIOLIN 441 A)
+
+Making an array with ~make-array~
+
+#+begin_src lisp :results value
+  (make-array 5 :initial-element 1)
+  (make-array 5 :initial-contents '(a e i o u))
+#+end_src
+
+/strings/ are a special type of vector, can use ~length~, ~aref~, ~reverse~.
+
+/hash tables/ are more efficient, but assoc tables are easy to create and manipulate because they are list structures.
+
 
 ** Advanced: Symbols
 
