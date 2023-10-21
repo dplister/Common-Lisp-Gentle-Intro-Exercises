@@ -235,6 +235,16 @@ Define a variable with ~defvar~.
 
 ~let*~ creates local variables in sequence; a subsequent variable can depend on the result of an earlier one.
 
+~multiple-value-bind~ is a macro that binds multiple values (from ~values~) to variables
+
+#+begin_src lisp :results output
+  (multiple-value-bind (a b) (floor 5 2)
+    (format t "a: ~s b: ~s" a b))
+#+end_src
+
+#+RESULTS:
+: a: 2 b: 1
+
 ** Chapter 5
 
 ~append~ copies its first input and for the cdr of the last cell, attaches the second input.
@@ -264,8 +274,7 @@ If member is found, returns sublist beginning with that item, else nil.
 
 Comparing lists via ~equal~ will compare lists element by element.
  
-| ~eq~     | fastest equality, compares addresses. Compares symbols quickly and to determine if two cons cells are the same object. |
-| ~eql~    | (default) will operate like ~eq~ except numbers (of the same type) are compared by value.                              |
+| ~eq~     | fastest equality, compares addresses. Compares symbols quickly and to determine if two cons cells are the same object. | | ~eql~    | (default) will operate like ~eq~ except numbers (of the same type) are compared by value.                              |
 | ~equal~  | compares lists element by element, otherwise works identical to ~eql~.                                                 |
 | ~equalp~ | more liberal than ~equal~, ignores case in strings.                                                                    |
 | ~=~      | most efficient for comparing numbers (even of different types).                                                        |
@@ -529,6 +538,7 @@ A convention in common lisp is that global variables should begin and end with a
 ~push~ and ~pop~ are macros that push an item onto the start of the list, or remove it.
 - they are missing the ~f~ suffix as they were invented before ~setf~
   - ~setf~ stands for "set field"
+- ~pushnew~ first checks to make sure the element is not a member of the list
 
 Considered inelegant to change the value of a local variable (just bind a new local with let).
 Binding sequentially with let* eliminates assignments (assignment-free).
@@ -862,6 +872,15 @@ Making an array with ~make-array~
 
 /hash tables/ are more efficient, but assoc tables are easy to create and manipulate because they are list structures.
 
+#+begin_src lisp :results output
+  (setf h (make-hash-table)) ; we can't manually write a hash table like vector can
+  (setf (gethash 'a h) 1)
+  (multiple-value-bind (value found) (gethash 'a h)
+    (format t "value: ~S found: ~S" value found))
+#+end_src
+
+#+RESULTS:
+: value: 1 found: T
 
 ** Advanced: Symbols
 
