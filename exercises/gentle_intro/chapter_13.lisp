@@ -71,5 +71,53 @@
 ;;; 13.8 b write a function new-histogram to initialize these variables appropriately, it should take one input: the number of bins the histogram is to have
 
 (defun new-histogram (bins)
-  (setf *hist-array* (make-hash-table :size bins))
+  (setf *hist-array* (make-array bins :initial-element 0))
   (setf *total-points* 0))
+
+(progn
+  (new-histogram 10)
+  (assert (= (length *hist-array*) 10))
+  (dotimes (n 10)
+    (assert (= (aref *hist-array* n) 0))))
+
+;;; 13.8 c write the function record-value that takes a number as input and updates *hist-array* and *total-points*, if number is out of range issue an error message
+
+(defun record-value (n)
+  (when (>= n (length *hist-array*))
+    (return-from record-value 'out-of-range))
+  (incf (aref *hist-array* n))
+  (incf *total-points*)
+  (aref *hist-array* n))
+
+(progn
+  (new-histogram 10)
+  (assert (= (record-value 5) 1))
+  (assert (= (aref *hist-array* 5) 1))
+  (assert (= *total-points* 1)))
+(progn
+  (new-histogram 10)
+  (assert (equal (record-value 20) 'out-of-range)))
+
+;;; 13.8 d write a function print-hist-line that takes a value from zero to ten as input, looks up the value in the array, and prints the corresponding line of the historgram
+
+(defun print-hist-line (n &optional (output t))
+  (let ((cnt (aref *hist-array* n)))
+    (format output "~&~2@S [~3@S] ~A" n cnt (make-string cnt :initial-element #\*))))
+
+(progn
+  (new-histogram 10)
+  (setf (aref *hist-array* 5) 23)
+  (assert (equal (print-hist-line 5 nil) " 5 [ 23] ***********************")))
+
+;;; 13.8 e write print-histogram
+
+(defun print-histogram ()
+  (dotimes (n (length *hist-array*))
+    (print-hist-line n))
+  (format t "~&    ~3@S total" *total-points*))
+
+(progn
+  (new-histogram 10)
+  (dotimes (v 200)
+    (record-value (random 10)))
+  (print-histogram))
