@@ -62,3 +62,14 @@
   (setf (get 'ceta 'a) 1)
   (assert (hasprop 'ceta 'a))
   (assert (not (hasprop 'ceta 'b))))
+
+;;; 13.8 a write expressions to set up a global variable *hist-array* that holds the array of counts, and a global variable *total-points* that holds the number of points recoreded so far
+
+(defvar *hist-array* nil)
+(defvar *total-points* 0)
+
+;;; 13.8 b write a function new-histogram to initialize these variables appropriately, it should take one input: the number of bins the histogram is to have
+
+(defun new-histogram (bins)
+  (setf *hist-array* (make-hash-table :size bins))
+  (setf *total-points* 0))
