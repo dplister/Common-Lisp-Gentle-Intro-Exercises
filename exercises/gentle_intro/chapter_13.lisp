@@ -121,3 +121,129 @@
   (dotimes (v 200)
     (record-value (random 10)))
   (print-histogram))
+
+;;; 13.9 preamble
+
+(defvar *crypto-text*
+  '("zj ze kljjls jf slapzi ezvlij pib kl jufwxuj p hffv jupi jf"
+    "enlpo pib slafml pvv bfwkj"))
+
+;;; 13.9 a define encipher-table decipher-table variables
+
+(defvar *encipher-table* nil)
+(defvar *decipher-table* nil)
+
+(defun create-cipher ()
+  (setf *encipher-table* (make-hash-table))
+  (setf *decipher-table* (make-hash-table)))
+
+(progn
+  (create-cipher)
+  (assert (typep *encipher-table* 'hash-table))
+  (assert (typep *decipher-table* 'hash-table))
+  (assert (= (hash-table-count *encipher-table*) 0))
+  (assert (= (hash-table-count *decipher-table*) 0)))
+
+;;; 13.9 b write a function make-substitution that takes two characters as input and stores the appropriate entries in decipher and encipher tables
+
+(defun make-substitution (from to)
+  (setf (gethash from *decipher-table*) to)
+  (setf (gethash to *encipher-table*) from))
+
+(progn
+  (create-cipher)
+  (make-substitution #\a #\b)
+  (assert (equal (gethash #\a *decipher-table*) #\b))
+  (assert (equal (gethash #\b *encipher-table*) #\a)))
+
+;;; 13.9 c write a function undo-substitution that takes one letter as input and removes the corresponding mapping from both tables
+
+(defun undo-substitution (c)
+  (let ((to (gethash c *decipher-table*)))
+    (setf (gethash c *decipher-table*) nil)
+    (setf (gethash to *encipher-table*) nil)))
+
+(progn
+  (create-cipher)
+  (make-substitution #\a #\b)
+  (undo-substitution #\a)
+  (assert (not (gethash #\a *decipher-table*)))
+  (assert (not (gethash #\b *encipher-table*))))
+  
+;;; 13.9 d look up documentation from clrhash function, write clear that clears the two cipher tables
+
+(defun clear ()
+  (clrhash *decipher-table*)
+  (clrhash *encipher-table*))
+
+(progn
+  (create-cipher)
+  (make-substitution #\a #\b)
+  (clear)
+  (assert (= (hash-table-count *encipher-table*) 0))
+  (assert (= (hash-table-count *decipher-table*) 0)))
+
+;;; 13.9 e write a function decipher-string that takes a single encoded string as input and returns a new, partially decoded stirng
+
+(defun decipher-string (str)
+  (map 'string
+       (lambda (c) (or (gethash c *decipher-table*) #\ ))
+       str))
+
+(progn
+  (create-cipher)
+  (make-substitution #\z #\i)
+  (assert (equal (decipher-string "zj ze")
+		 "i  i ")))
+
+;;; 13.9 f write a function show-line that shows the input and the deciphered version underneath
+
+(defun show-line (str)
+  (format t "~&~A" str)
+  (format t "~&~A" (decipher-string str)))
+
+;;; 13.9 g write a function show-text that displays all the crypto lines and their deciphered versions
+
+(defun show-text ()
+  (dolist (l *crypto-text*)
+    (show-line l)))
+
+;;; 13.9 h type in the following
+
+(defun get-first-char (str)
+  (char-downcase (char (format nil "~A" str) 0)))
+
+;;; 13.9 i write a function read-letter that gets input 
+;;; if symbol 'end or 'undo return the value
+;;; else call get-first-character and return the result
+
+(defun read-letter ()
+  (let ((input (read)))
+    (cond
+      ((or (equal input 'end)
+	   (equal input 'undo))
+       input)
+      (t (get-first-char input)))))
+
+;;; 13.9 write a function sub-letter that takes a character as input
+;;; if character already deciphered, print error and state current mapping
+;;; else ask what character should map to
+;;;   should be character not already mapped
+
+(defun capture-sub ()
+  (format t "~&what should letter map to?")
+  (let ((c (read-letter)))
+    (cond
+      ((not (gethash c *encipher-table*)) c)
+      (t
+       (format t "~&letter already mapped: ~a" c)
+       (capture-sub)))))
+
+(defun sub-letter (c)
+  (let ((d (gethash c *decipher-table*)))
+    (cond
+      ((not d)
+       (make-substitution c (capture-sub)))
+      (t
+       (format t "~&letter already substituted to ~a" d)))))
+  
