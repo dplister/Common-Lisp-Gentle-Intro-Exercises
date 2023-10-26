@@ -204,8 +204,8 @@
 
 ;;; 13.9 g write a function show-text that displays all the crypto lines and their deciphered versions
 
-(defun show-text ()
-  (dolist (l *crypto-text*)
+(defun show-text (crypto)
+  (dolist (l crypto)
     (show-line l)))
 
 ;;; 13.9 h type in the following
@@ -225,7 +225,7 @@
        input)
       (t (get-first-char input)))))
 
-;;; 13.9 write a function sub-letter that takes a character as input
+;;; 13.9 j write a function sub-letter that takes a character as input
 ;;; if character already deciphered, print error and state current mapping
 ;;; else ask what character should map to
 ;;;   should be character not already mapped
@@ -247,3 +247,45 @@
       (t
        (format t "~&letter already substituted to ~a" d)))))
   
+;;; 13.9 k write a function undo-letter that asks "undo which letter?" and reads a letter, if character mapped, call undo-substitution, else error
+
+(defun undo-letter ()
+  (format t "~&Undo which letter?")
+  (let* ((c (read-letter))
+	 (d (gethash c *decipher-table*)))
+    (cond
+      ((not d)
+       (format t "~&No mapping for letter ~a" c))
+      (t
+       (undo-substitution c)))))
+
+;;; 13.9 l write the main function solve that takes a cryptogram as input. Solve should perform the following loop:
+;;; display crypto gram, ask sub a letter? and call read-letter.
+;;;   if result is a character, call sub-letter
+;;;   if result is undo, call undo-letter
+;;;   if result is end, return t
+;;;   else, display error message
+
+(defun solve (crypto)
+  (show-text crypto)
+  (format t "~&Substitute a letter?")
+  (let ((response (read-letter)))
+    (cond
+      ((equal response 'end)
+       t)
+      ((equal response 'undo)
+       (undo-letter)
+       (solve crypto))
+      ((characterp response)
+       (sub-letter response)
+       (solve crypto))
+      (t
+       (format t "Unknown input")
+       (solve crypto)))))
+    
+;;; 13.9 m solve the cryptogram
+
+;; zj ze kljjls jf slapzi ezvlij pib kl jufwxuj p hffv jupi jf
+;; it is better to remain silent and be thought a fool than to
+;; enlpo pib slafml pvv bfwkj
+;; speak and remove all doubt
