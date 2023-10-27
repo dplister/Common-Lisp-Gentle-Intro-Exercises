@@ -882,6 +882,32 @@ Making an array with ~make-array~
 #+RESULTS:
 : value: 1 found: T
 
+*** Coerce
+
+~coerce~ can convert a sequence from one type to another.
+
+#+begin_src lisp :results value
+  (coerce "Test" 'list)
+#+end_src
+
+#+RESULTS:
+: (#\T #\e #\s #\t)
+
+*** Alternative to mapcar for non-lists
+
+~mapcar~ doesn't work on all sequences, just lists.
+~map~ will work on all sequences.
+- If map is to be used purely for its side-effects, pass nil as the type (the function will return nil).
+
+#+begin_src lisp :results value
+  (map 'list #'+
+    '(1 2 3 4)
+    '#(10 20 30 40))
+#+end_src
+
+#+RESULTS:
+| 11 | 22 | 33 | 44 |
+
 ** Advanced: Symbols
 
 - There can only be one symbol in the computer's memory with a given name.
@@ -893,6 +919,7 @@ Internally a symbol is composed of five components.
 - Name
 - Function cell
 - Value cell
+- Property list
 
 If global variable TOTAL has the value 12, internal structure would appear as:
 | Name  | "TOTAL" |
@@ -904,6 +931,17 @@ If global variable FISH has the value TROUT, the structure would appear as:
 
 | Name | "TROUT" |
 
+For symbol ~cat-in-hat~ the ~symbol-plist~ function can access its list of properties.
+Property lists are considered archaic because a symbol only has one property list (a global data structure).
+
+#+begin_src lisp :results value
+  (setf (get 'cat-in-hat 'bowtie) 'red)
+  (setf (get 'cat-in-hat 'tail) 'long)
+  (symbol-plist 'cat-in-hat)
+#+end_src
+
+#+RESULTS:
+| TAIL | LONG | BOWTIE | RED |
 
 ** Advanced: Using Trace
 
