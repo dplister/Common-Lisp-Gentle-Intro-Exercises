@@ -882,6 +882,36 @@ Making an array with ~make-array~
 #+RESULTS:
 : value: 1 found: T
 
+** Chapter 14: Macros
+
+- Macros are equivalent of shorthand; macros don't let you say anything that can't be expressed with ordinary functions, but are more concise.
+  - An example: ~(incf a)~ rather than ~(setf a (+ a 1))~
+- Many macros are able to interpret complex place descriptions as generalized variable references.
+- A complicated macro is ~defstruct~, it generates make-, -p, accessors.
+- Lisp automatically expands macro calls, a macro is a special shorthand-expanding function that does not evaluate its arguments.
+  - The macro ~incf~ doesn't evaluate ~a~ in ~(incf a)~, it expands to something like ~(setq a (+ a 1))~.
+  - It is possible to view the macro expansion, use Pretty Print Macro eXpansion tool (PPMX).
+#+begin_src lisp :results value
+  (setf *print-pretty* t)
+  (macroexpand '(incf a))
+#+end_src
+
+#+RESULTS:
+| SETQ | A | (+ 1 A) |
+
+*** Defining a macro
+
+#+begin_src lisp :results value
+  (defmacro simple-incf (var &optional (amount 1))
+    (list 'setq var (list '+ var amount)))
+  (setf a 4)
+  (simple-incf a)
+  (macroexpand '(simple-incf a 2))
+#+end_src
+
+#+RESULTS:
+| SETQ | A | (+ A 2) |
+
 ** Advanced: Symbols
 
 - There can only be one symbol in the computer's memory with a given name.
@@ -965,3 +995,4 @@ We can put a break point in with an associated formatted message via ~break~.
 
 Using the ~dribble~ function with a filename will start recording a session in your repl.
 Calling ~dribble~ again will complete the recording.
+
