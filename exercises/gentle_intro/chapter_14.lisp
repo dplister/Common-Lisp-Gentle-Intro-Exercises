@@ -62,3 +62,54 @@
   (setf a 1)
   (set-nil a)
   (assert (not a)))
+
+;;; 14.4 write a macro called simple-rotatef that switches the values of the two variables
+
+(defmacro simple-rotatef (a b)
+  `(let ((temp-a ,a)
+	 (temp-b ,b))
+     (setq ,b temp-a)
+     (setq ,a temp-b)))
+
+(progn
+  (setf x 1)
+  (setf y 2)
+  (simple-rotatef x y)
+  (assert (= x 2))
+  (assert (= y 1)))
+
+;;; 14.5 write a macro set-mutual that takes two variable names as input and expands into an expression that sets each variable to the name of the other
+
+(defmacro set-mutual (a b)
+  `(progn
+     (setq ,a ',b)
+     (setq ,b ',a)))
+
+(progn
+  (setf x 1)
+  (setf y 2)
+  (set-mutual x y)
+  (assert (equal x 'y))
+  (assert (equal y 'x)))
+
+;;; 14.6 write a macro called variable-chain that accepts any number of inputs and should expand to setting param a to 'b, b to 'c, etc
+
+(defmacro variable-chain (&rest variables)
+  `(progn
+     ,@(do ((nxt (cdr variables) (cdr nxt))
+	    (curr variables (cdr curr))
+	    (res nil))
+	   ((not curr) (reverse res))
+	 (if (not nxt)
+	     (push `(setf ,(first curr) ',(first variables)) res)
+	     (push `(setf ,(first curr) ',(first nxt)) res)))))
+	     
+
+(progn
+  (setf x 1)
+  (setf y 2)
+  (setf z 3)
+  (variable-chain x y z)
+  (assert (equal x 'y))
+  (assert (equal y 'z))
+  (assert (equal z 'x)))

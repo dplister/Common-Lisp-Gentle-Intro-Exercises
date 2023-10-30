@@ -94,6 +94,27 @@ To escape referencing a variable, use quotes.
 #+RESULTS:
 : T
 
+For escaping larger lists, backquotes '`' can be used.
+- Prefixed commas will unquote the associated item.
+
+#+begin_src lisp :results value
+  (setf name 'fred)
+  `(i gave ,name about ,(* 25 8) dollars)
+#+end_src
+
+#+RESULTS:
+| I | GAVE | FRED | ABOUT | 200 | DOLLARS |
+
+- Using ,@ will splice the element into the result.
+
+#+begin_src lisp :results value
+  (setf address '(1 test rd))
+  `(home is ,@address)
+#+end_src
+
+#+RESULTS:
+| HOME | IS | 1 | TEST | RD |
+
 *** Internal structure of symbols
 
 Symbols are actually composite objects that contain pointers that point to an internal representation, i.e. the symbol's name.
@@ -937,6 +958,49 @@ Making an array with ~make-array~
 
 #+RESULTS:
 | SETQ | A | (+ A 2) |
+
+Three important distinctions:
+1) Arguments to functions are always evaluated; arguments to macros are not.
+2) Result of a function can be anything; for macros it must be a valid lisp expression.
+3) After a macro function returns an expression, that expression is immediately evaluated. Results returned from functions do not get evaluated.
+
+*** Macro Backquotes
+
+- Can use the combination of ', in front of a variable to get its name.
+
+#+begin_src lisp :results output
+  (defmacro showvar (var)
+    `(format t "~&The value of ~S is ~S"
+       ',var
+       ,var))
+  (defun f (x y)
+    (showvar x)
+    (showvar y)
+    (+ x y))
+  (f 1 2)
+#+end_src
+
+#+RESULTS:
+: The value of X is 1
+: The value of Y is 2
+
+- Splicing is useful when taking a variable amount of parameters as input
+
+#+begin_src lisp :results value
+  (defmacro set-zero (&rest variables)
+    `(progn ,@(mapcar #'(lambda (var)
+			  (list 'setf var 0))
+		      variables)
+	    '(zeroed ,@variables))) ; this is a message (not a function call) to indicate they have been zeroed
+
+  (setf a 1)
+  (setf b 2)
+  (setf c 3)
+  (macroexpand '(set-zero a b c))
+#+end_src
+
+#+RESULTS:
+| PROGN | (SETF A 0) | (SETF B 0) | (SETF C 0) | '(ZEROED A B C) |
 
 ** Advanced: Symbols
 
