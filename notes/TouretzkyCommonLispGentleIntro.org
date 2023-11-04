@@ -229,14 +229,22 @@ If we were to create function ~(defun foo (a b) (and a b))~, and called via ~foo
 ** Chapter 5
 
 Define a variable with ~defvar~.
+- Can have an optional variable and a doc string.
+  - If variable already defined, initial value is ignored.
 
 #+begin_src lisp :results value
-  (defvar trowels '(gardening pointing fishing)) ; value is optional
+  (defvar trowels '(gardening pointing fishing) "Trowel types") ; value and doc string is optional
   (setf trowels (cons 'something trowels))
 #+end_src
 
 #+RESULTS:
 | SOMETHING | GARDENING | POINTING | FISHING |
+
+~defparameter~ is similar to ~defvar~, but it used to declare variables that will not change during running.
+- If variable already defined, the value will replace the one currently set.
+
+~defconstant~ defines constants; guaranteed never to change.
+- The convention of asterisks for globals does not apply to constants.
 
 ~setf~ used mostly for global variables; good practice to avoid changing value of local vars.
 
@@ -265,6 +273,33 @@ Define a variable with ~defvar~.
 
 #+RESULTS:
 : a: 2 b: 1
+
+*** Rebinding special variables
+
+It is possible to temporarily rebind global variables via let:
+
+#+begin_src lisp :results output
+  (defvar *foo* 0)
+  (defun showvar (v)
+    (format t "~&v is ~A" v))
+  (defun bump-foo ()
+    (incf *foo*))
+  (defun rebind-foo ()
+    (bump-foo)
+    (showvar *foo*)
+    (let ((*foo* 100))
+      (showvar *foo*)
+      (bump-foo)
+      (showvar *foo*))
+    (showvar *foo*))
+  (rebind-foo)
+#+end_src
+
+#+RESULTS:
+: v is 1
+: v is 100
+: v is 101
+: v is 1
 
 ** Chapter 5
 
@@ -1001,6 +1036,46 @@ Three important distinctions:
 
 #+RESULTS:
 | PROGN | (SETF A 0) | (SETF B 0) | (SETF C 0) | '(ZEROED A B C) |
+
+*** &body
+
+- While body expressions could be collected with &rest, &body can be used when the remaining arguments to a macro form the body of some control structure.
+- Note that the below example would be better to use ~do~ instead of ~while~ because of the explict ~setf~ used below.
+  
+#+begin_src lisp :results value
+  (defmacro while (test &body body)
+    `(do ()
+	 ((not ,test))
+       ,@body))
+  (defun next-power-of-two (n &aux (i 1))
+    (while (< i n)
+      (format t "~&Not ~S" i)
+      (setf i (* i 2)))
+    i)
+  next-power-of-two 11)
+#+end_src
+
+#+RESULTS:
+: 16
+
+*** destructuring
+
+- As macro inputs are not evaluated, we can destructure them.
+
+#+begin_src lisp :results value
+  (defmacro mix-and-match ((x1 y1) (x2 y2))
+    `(list '(,x1 ,y1)
+           '(,x1 ,y2)
+           '(,x2 ,y1)
+           '(,x2 ,y2)))
+  (mix-and-match '(fred wilma) '(barney betty)) 
+#+end_src
+
+#+RESULTS:
+| quote | (FRED WILMA)   |
+| quote | (BARNEY BETTY) |
+| quote | (FRED WILMA)   |
+| quote | (BARNEY BETTY) |
 
 ** Advanced: Symbols
 

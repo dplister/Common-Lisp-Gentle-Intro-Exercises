@@ -3,6 +3,9 @@
 (setf *pretty-print* t)
 (macroexpand '(pop x))
 
+;; (LET ((#:G428 (CAR X)))
+;;  (PROGN (SETQ X (CDR X)) #:G428))
+
 ;;; 14.2 use ppmx to see to what expression the following defstruct expands
 
 (macroexpand 
@@ -10,7 +13,50 @@
    (name nil)
    (condition 'green)))
 
+;; 
+;; (PROGN
+;;  (EVAL-WHEN (:COMPILE-TOPLEVEL :LOAD-TOPLEVEL :EXECUTE)
+;;    (SB-KERNEL::%DEFSTRUCT-PACKAGE-LOCKS
+;;     '#<SB-KERNEL:DEFSTRUCT-DESCRIPTION STARSHIP {700C0B2A23}>))
+;;  (SB-KERNEL::%DEFSTRUCT
+;;   '#<SB-KERNEL:DEFSTRUCT-DESCRIPTION STARSHIP {700C0B2A23}>
+;;   '#(#<SB-KERNEL:LAYOUT (ID=0) for T {7003033BD3}>
+;;      #<SB-KERNEL:LAYOUT (ID=1) for STRUCTURE-OBJECT {7003033C53}>)
+;;   (SB-C:SOURCE-LOCATION))
+;;  (EVAL-WHEN (:COMPILE-TOPLEVEL :LOAD-TOPLEVEL :EXECUTE)
+;;    (SB-KERNEL::%COMPILER-DEFSTRUCT
+;;     '#<SB-KERNEL:DEFSTRUCT-DESCRIPTION STARSHIP {700C0B2A23}>
+;;     '#(#<SB-KERNEL:LAYOUT (ID=0) for T {7003033BD3}>
+;;        #<SB-KERNEL:LAYOUT (ID=1) for STRUCTURE-OBJECT {7003033C53}>)))
+;;  (SB-C:XDEFUN COPY-STARSHIP
+;;      :COPIER
+;;      NIL
+;;      (SB-KERNEL:INSTANCE)
+;;    (COPY-STRUCTURE (THE STARSHIP SB-KERNEL:INSTANCE)))
+;;  (SB-C:XDEFUN STARSHIP-P
+;;      :PREDICATE
+;;      NIL
+;;      (SB-KERNEL::OBJECT)
+;;    (TYPEP SB-KERNEL::OBJECT 'STARSHIP))
+;;  (SB-C:XDEFUN (SETF STARSHIP-NAME)
+;;      :ACCESSOR
+;;      (NAME NIL)
+;;      (SB-KERNEL::VALUE SB-KERNEL:INSTANCE)
+;;    (LET ((#:INSTANCE (THE STARSHIP SB-KERNEL:INSTANCE))
+;;          (#:VAL SB-KERNEL::VALUE))
+;;      (SB-KERNEL:%INSTANCE-SET #:INSTANCE 1 #:VAL)
+;;      #:VAL))
+;;  (SB-C:XDEFUN STARSHIP-NAME
+;;      :ACCESSOR
+;;      (NAME NIL)
+;;      (SB-KERNEL:INSTANCE)
+;;    (SB-KERNEL:%INSTANCE-REF (THE STARSHIP SB-KERNEL:INSTANCE) 1))
+;; (continues on)
+
 ;;; 14.3 write a set-nil macro that sets a variable to nil
+
+(defmacro set-nil (v)
+  (list 'setq v nil))
 
 (progn
   (setf a 1)
@@ -18,6 +64,12 @@
   (assert (not a)))
 
 ;;; 14.4 write a macro called simple-rotatef that switches the values of the two variables
+
+(defmacro simple-rotatef (a b)
+  `(let ((temp-a ,a)
+	 (temp-b ,b))
+     (setq ,b temp-a)
+     (setq ,a temp-b)))
 
 (progn
   (setf x 1)
@@ -28,6 +80,11 @@
 
 ;;; 14.5 write a macro set-mutual that takes two variable names as input and expands into an expression that sets each variable to the name of the other
 
+(defmacro set-mutual (a b)
+  `(progn
+     (setq ,a ',b)
+     (setq ,b ',a)))
+
 (progn
   (setf x 1)
   (setf y 2)
@@ -36,6 +93,17 @@
   (assert (equal y 'x)))
 
 ;;; 14.6 write a macro called variable-chain that accepts any number of inputs and should expand to setting param a to 'b, b to 'c, etc
+
+(defmacro variable-chain (&rest variables)
+  `(progn
+     ,@(do ((nxt (cdr variables) (cdr nxt))
+	    (curr variables (cdr curr))
+	    (res nil))
+	   ((not curr) (reverse res))
+	 (if (not nxt)
+	     (push `(setf ,(first curr) ',(first variables)) res)
+	     (push `(setf ,(first curr) ',(first nxt)) res)))))
+	     
 
 (progn
   (setf x 1)
@@ -162,14 +230,42 @@
 ;;; - make it accept quarters as well as nickels and dimes
 ;;;    - a quarter should go "Ker-chunk!"
 
+(defnode quarter)
+(defnode have-25)
+(defarc start quarter have-25 "Ker-chunk!")
+(defarc have-20 nickel have-25 "Clunk!")
+(defarc have-15 dime have-25 "Clink!")
+
+(defarc have-5 quarter have-25 "Returned five cents.")
+(defarc have-10 quarter have-25 "Returned ten cents.")
+(defarc have-15 quarter have-25 "Returned fiften cents.")
+(defarc have-20 quarter have-25 "Returned twenty cents.")
+(defarc have-25 quarter have-25 "Returned twenty-five cents.")
+
+(defarc have-25 chocolate-button end "Deliver chocolate.")
+(defarc have-25 coint-return start "Returned twenty-five cents.")
+
 ;; 14.11 note: this exercise does not seem to assume you have completed 14.07 (the asserts skip those nodes)
 ;; 14.11 a write a function compile-arc that takes an arc as inpout and returns a cond clause matching the below test
+
+(defun compile-arc (arc)
+  `((equal this-input ',(arc-label arc))
+    (format t "~&~A" ,(arc-action arc))
+    (,(node-name (arc-to arc)) (rest input-syms))))
 
 (assert (equal
 	 (compile-arc (first *arcs*))
 	 `((equal this-input 'nickel) (format t "~&~A" "Clunk!") (have-5 (rest input-syms)))))
 
 ;; 14.11 b write a function compile-node that takes a node as input and returns a defun expression for that node
+
+(defun compile-node (node)
+  `(defun ,(node-name node) (input-syms
+			     &aux (this-input (first input-syms)))
+     (cond ((null input-syms) ',(node-name node))
+	   ,@(mapcar #'(lambda (a) (compile-arc a)) (node-outputs node))
+	   (t (error "No arc from ~A with label ~A."
+		     ',(node-name node) this-input)))))
 
 (assert (equal (compile-node (find-node 'start))
 	       `(defun start (input-syms 
@@ -189,6 +285,16 @@
 
 ;; 14.11 c write a macro compile-machine that expands into a progn containing a defun for each node in *nodes*
 
+(defmacro compile-machine ()
+  `(progn
+     ,@(mapcar #'compile-node *nodes*)
+   ))
+
 ;; 14.11 d compile and run the vending machine, what does the following expression produce?
 
 (start '(dime dime dime gum-button))
+
+; Clink!
+; Clink!
+; Dime returned.
+; Deliver gum, nickel change.
