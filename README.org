@@ -1,0 +1,53 @@
+* Exercises for Touretzky's "COMMON LISP: A Gentle Introduction to Symbolic Computation"
+
+A repository containing exercises and solutions for the book:
+[[https://amzn.to/3scjBnZ][Common Lisp: A Gentle Introduction]]
+
+For each exercise (where possible) I have provided an assertion to test against.
+
+** Executing exercises
+
+1) Open the exercise lisp file in emacs.
+2) M-x slime (install [[https://slime.common-lisp.dev/][Slime addon]] if missing)
+3) Add the function required to make the assertion pass.
+4) Ctrl+Alt+x your defun.
+5) Ctrl+Alt+x the assertion;
+   - if it has completed successfully NIL will appear in the bottom bar of emacs
+   - if it has failed, a error will appear in your repl
+
+** Loading sdraw
+
+Sdraw will render your objects using similar notation to what is in the book.
+To use it in your repl perform the following steps:
+
+1) In your repl, execute ~(load "sdraw.lisp")~
+2) You can now call sdraw: ~(sdraw:sdraw (list 1 2 3))~
+3) You should observe something like the following in your REPL:
+   #+BEGIN_EXAMPLE
+   [*|*]--->[*|*]--->[*|*]--->NIL
+   |        |        |
+   v        v        v
+   1        2        3
+  #+END_EXAMPLE 
+
+** Loading dtrace
+
+Dtrace will trace your function calls more thoroughly than trace can.
+To use dtrace in your repl perform the following steps.
+
+1) In your repl, execute ~(load "dtrace.lisp")~
+2) You can now call dtrace:
+   #+begin_src lisp
+     (defun my-add (a b)
+       (+ a b))
+     (dtrace my-add)
+     (my-add 1 2) 
+   #+end_src
+3) You should observe something like the following in your REPL
+   #+BEGIN_EXAMPLE
+   ----Enter MY-ADD
+   |     Arg-1 = 1
+   |     Arg-2 = 2
+   \--MY-ADD returned 3
+   3
+  #+END_EXAMPLE

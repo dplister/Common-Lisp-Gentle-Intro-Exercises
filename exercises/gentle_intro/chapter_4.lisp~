@@ -1,7 +1,0 @@
-;;; 4.1 write a function make-even that makes an odd number even, and returns number as-is if already even
-
-(defun make-even (num)
-  (if (oddp num) (+ num 1) num))
-
-(assert (= (make-even 3) 4))
-(assert (= (make-even 4) 4))
